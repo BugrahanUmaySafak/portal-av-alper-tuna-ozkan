@@ -23,7 +23,7 @@ export default function LatestContact() {
     <div className="space-y-3">
       <div>
         <h1 className="text-lg font-semibold text-foreground">
-          Son Gönderilen İletişim Mesajı
+          Son Gönderilen Mesaj
         </h1>
       </div>
 

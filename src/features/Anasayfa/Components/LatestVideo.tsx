@@ -24,7 +24,7 @@ export default function LatestVideo() {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-xl font-semibold">Son Video</h2>
+      <h2 className="text-xl font-semibold">Son Paylaşılan Video</h2>
 
       <div
         role="button"
