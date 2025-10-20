@@ -17,7 +17,7 @@ export function useLogin() {
     setLoading(true);
     try {
       await login({ username, password });
-      router.replace("/dashboard");
+      router.replace("/anasayfa");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Giriş başarısız";
       setErr(message);

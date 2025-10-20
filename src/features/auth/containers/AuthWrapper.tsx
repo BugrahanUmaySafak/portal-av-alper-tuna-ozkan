@@ -4,7 +4,7 @@ import { getSession } from "@/features/auth/hooks/getSession";
 
 export default async function AuthWrapper() {
   const user = await getSession();
-  if (user) redirect("/dashboard");
+  if (user) redirect("/anasayfa");
 
   return (
     <main className="min-h-dvh grid place-items-center bg-muted p-6">

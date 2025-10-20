@@ -4,10 +4,19 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   const { pathname, origin } = req.nextUrl;
 
-  // Sadece /dashboard ve alt yollar
-  if (!pathname.startsWith("/dashboard")) return NextResponse.next();
+  // Bu dosya zaten sadece matcher'daki yollar için tetiklenecek,
+  // ama istersen güvene almak için yine de kontrol edebiliriz:
+  const protectedRoots = [
+    "/anasayfa",
+    "/iletisim",
+    "/makalelerim",
+    "/videolarim",
+  ];
+  if (!protectedRoots.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
 
-  // 1) Cookie var mı? (logout sonrası en hızlı kontrol)
+  // 1) Cookie var mı?
   const sid = req.cookies.get("sid")?.value;
   if (!sid) {
     const url = new URL("/", req.url);
@@ -29,5 +38,12 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: [
+    "/anasayfa",
+    "/iletisim",
+    "/makalelerim",
+    "/makalelerim/:path*",
+    "/videolarim",
+    "/videolarim/:path*",
+  ],
 };

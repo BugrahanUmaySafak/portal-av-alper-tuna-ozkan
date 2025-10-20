@@ -30,7 +30,6 @@ export default function LoginForm() {
             />
           </div>
 
-          {/* Password */}
           <div className="grid gap-2">
             <Label htmlFor="password">Şifre</Label>
             <div className="relative">

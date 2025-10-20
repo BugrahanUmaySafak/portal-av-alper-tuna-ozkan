@@ -2,6 +2,7 @@ import "@/style/globals.css";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import HeaderGate from "@/components/Header/HeaderGate";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -30,6 +31,7 @@ export default function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
+          <HeaderGate />
           <main>{children}</main>
           <Toaster
             closeButton
