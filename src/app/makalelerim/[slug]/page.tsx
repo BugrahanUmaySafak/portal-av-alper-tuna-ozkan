@@ -1,3 +1,4 @@
+// app/makalelerim/[slug]/page.tsx
 import ArticleDetailInline from "@/features/makalelerim/containers/ArticleDetailInline";
 import { notFound } from "next/navigation";
 

@@ -1,3 +1,4 @@
+// src/features/makalelerim/actions/uploadArticleImage.ts
 type UploadJson = { image?: { url?: string } };
 
 export async function uploadArticleImageWithId(
@@ -7,13 +8,7 @@ export async function uploadArticleImageWithId(
 ): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
-  fd.append(
-    "data",
-    JSON.stringify({
-      slug,
-      image: { url: "" },
-    })
-  );
+  fd.append("data", JSON.stringify({ slug }));
 
   const res = await fetch(`/api/makalelerim/${id}`, {
     method: "PATCH",
@@ -22,18 +17,9 @@ export async function uploadArticleImageWithId(
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(text || "Görsel yüklenemedi");
+    throw new Error((await res.text().catch(() => "")) || "Görsel yüklenemedi");
   }
 
   const json: UploadJson = await res.json();
   return json.image?.url ?? "";
-}
-
-export async function uploadArticleImage(
-  file: File,
-  slug: string,
-  id: string
-): Promise<string> {
-  return uploadArticleImageWithId(file, slug, id);
 }

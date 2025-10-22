@@ -1,49 +1,42 @@
-// src/features/makalelerim/components/ArticleHero.tsx
+// src/features/makalelerim/components/ArticleHeroNew.tsx
 "use client";
 
+import Container from "@/components/container/Container";
 import SmartFigureImage from "@/components/media/SmartFigureImage";
 import { Button } from "@/components/ui/button";
 import { ImagePlus } from "lucide-react";
-import { uploadArticleImageWithId } from "../actions/uploadArticleImage";
 import { useState } from "react";
-import Container from "@/components/container/Container";
 
-export default function ArticleHero({
-  id,
+export default function ArticleHeroNew({
   image,
   title,
   slug,
   onChangeTitleLocal,
   onChangeSlugLocal,
   onChangeAltLocal,
-  onUploadedImmediate,
+  onPickFile,
 }: {
-  id: string;
   image: { url: string; alt: string };
   title: string;
   slug: string;
   onChangeTitleLocal: (v: string) => void;
   onChangeSlugLocal: (v: string) => void;
   onChangeAltLocal: (v: string) => void;
-  onUploadedImmediate: (url: string) => void;
+  onPickFile: (file: File) => void;
 }) {
   const [localPreview, setLocalPreview] = useState<string | null>(null);
 
-  async function onPickFile() {
+  async function handlePick() {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = async () => {
+    input.onchange = () => {
       const file = input.files?.[0];
       if (!file) return;
       const preview = URL.createObjectURL(file);
       setLocalPreview(preview);
-      try {
-        const url = await uploadArticleImageWithId(file, slug, id);
-        onUploadedImmediate(url);
-      } finally {
-        setTimeout(() => URL.revokeObjectURL(preview), 5000);
-      }
+      onPickFile(file);
+      setTimeout(() => URL.revokeObjectURL(preview), 5000);
     };
     input.click();
   }
@@ -65,7 +58,7 @@ export default function ArticleHero({
             />
             <span id="slug-help" className="text-xs text-muted-foreground">
               URL’de görünecek kısa isimdir. Küçük harf, rakam ve tire (-)
-              kullanın.
+              kullanın. Örn: emlak-hukuku-rehberi
             </span>
           </label>
 
@@ -93,8 +86,8 @@ export default function ArticleHero({
           priority
         />
         <div className="absolute right-4 top-4">
-          <Button onClick={onPickFile} className="gap-2">
-            <ImagePlus className="h-4 w-4" /> Görseli Değiştir
+          <Button onClick={handlePick} className="gap-2">
+            <ImagePlus className="h-4 w-4" /> Görseli Seç
           </Button>
         </div>
       </div>

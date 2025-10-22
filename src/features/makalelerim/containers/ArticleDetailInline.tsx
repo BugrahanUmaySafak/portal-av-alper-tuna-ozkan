@@ -1,3 +1,4 @@
+// src/features/makalelerim/containers/ArticleDetailInline.tsx
 "use client";
 
 import Container from "@/components/container/Container";
@@ -13,6 +14,7 @@ import ArticleEditor from "../components/ArticleEditor";
 import EditableKeywords from "../components/EditableKeywords";
 import EditableSEO from "../components/EditableSEO";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 function formatTR(iso?: string) {
   if (!iso) return "";
@@ -28,34 +30,35 @@ function formatTR(iso?: string) {
 }
 
 export default function ArticleDetailInline({ initial }: { initial: Article }) {
+  const router = useRouter();
   const [title, setTitle] = useState(initial.title);
   const [slug, setSlug] = useState(initial.slug);
   const [content, setContent] = useState(initial.content);
   const [imageUrl, setImageUrl] = useState(initial.image.url);
-  const [imageAlt] = useState(initial.image.alt);
+  const [imageAlt, setImageAlt] = useState(initial.image.alt);
   const [keywords, setKeywords] = useState<string[]>(initial.keywords ?? []);
   const [seo, setSeo] = useState(
     initial.seo ?? { title: "", description: "", canonicalUrl: "" }
   );
 
-  const published = formatTR(initial.publishedAt);
-  const updatedAt = formatTR(initial.updatedAt);
-
-  const isDirty = useMemo(() => {
-    return (
+  const isDirty = useMemo(
+    () =>
       title !== initial.title ||
       slug !== initial.slug ||
       content !== initial.content ||
       imageUrl !== initial.image.url ||
+      imageAlt !== initial.image.alt ||
       JSON.stringify(keywords) !== JSON.stringify(initial.keywords ?? []) ||
       JSON.stringify(seo) !==
         JSON.stringify(
           initial.seo ?? { title: "", description: "", canonicalUrl: "" }
-        )
-    );
-  }, [title, slug, content, imageUrl, keywords, seo, initial]);
+        ),
+    [title, slug, content, imageUrl, imageAlt, keywords, seo, initial]
+  );
 
   async function handleSave() {
+    const ok = window.confirm("Değişiklikleri onaylıyor musunuz?");
+    if (!ok) return;
     try {
       const patch: Partial<Article> = {
         title,
@@ -66,13 +69,9 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
         seo,
       };
       const updated = await updateArticle(initial.id, patch);
-      setTitle(updated.title);
-      setSlug(updated.slug);
-      setContent(updated.content);
-      setImageUrl(updated.image.url);
-      setKeywords(updated.keywords ?? []);
-      setSeo(updated.seo ?? { title: "", description: "", canonicalUrl: "" });
       toast.success("Makale güncellendi");
+      router.push("/makalelerim");
+      return updated;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Kaydedilemedi");
     }
@@ -87,6 +86,7 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
         slug={slug}
         onChangeTitleLocal={setTitle}
         onChangeSlugLocal={setSlug}
+        onChangeAltLocal={setImageAlt}
         onUploadedImmediate={(url) => setImageUrl(url)}
       />
 
@@ -98,25 +98,28 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
               className="inline-flex items-center gap-2 text-sm rounded-md border px-3 py-1.5 hover:bg-accent transition"
               aria-label="Tüm yazılara geri dön"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Tüm yazılara geri dön
+              <ArrowLeft className="h-4 w-4" /> Tüm yazılara geri dön
             </Link>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground mb-6">
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays className="h-4 w-4" />
-              {published}
+              {formatTR(initial.publishedAt)}
             </span>
-            {updatedAt && (
+            {initial.updatedAt && (
               <span className="inline-flex items-center gap-1.5">
                 <Pencil className="h-4 w-4" />
-                Güncellendi: {updatedAt}
+                Güncellendi: {formatTR(initial.updatedAt)}
               </span>
             )}
           </div>
 
-          <ArticleEditor value={content} onChange={setContent} />
+          <div className="mb-2 text-sm text-muted-foreground">
+            İçeriği aşağıdan düzenleyebilirsiniz. Başlıklar, listeler ve
+            bağlantılar desteklenir.
+          </div>
+          <ArticleEditor  value={content} onChange={setContent} />
 
           <div className="mt-6">
             <EditableKeywords keywords={keywords} onChange={setKeywords} />

@@ -11,6 +11,8 @@ import { useArticles } from "@/features/makalelerim/actions/useArticles";
 import type { Article } from "@/features/makalelerim/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import ArticleDelete from "./ArticleDelete";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 function formatTR(iso: string) {
   try {
@@ -29,6 +31,7 @@ export default function ArticlesList({
 }: {
   initialItems?: Article[];
 }) {
+  const router = useRouter();
   const { articles, isLoading, isError, error, mutate } =
     useArticles(initialItems);
 
@@ -61,6 +64,12 @@ export default function ArticlesList({
   return (
     <Section>
       <Container>
+        <Button
+          onClick={() => router.push("/makalelerim/new")}
+          className="mb-6"
+        >
+          Yeni Makale Ekle
+        </Button>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {articles.map((a) => (
             <Link

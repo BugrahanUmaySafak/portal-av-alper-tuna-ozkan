@@ -1,3 +1,4 @@
+// src/components/media/SmartFigureImage.tsx
 "use client";
 
 import Image from "next/image";
@@ -9,7 +10,12 @@ function cld(url: string, params: string) {
     if (!u.hostname.includes("res.cloudinary.com")) return url;
     const [prefix, rest] = u.pathname.split("/image/upload/");
     if (!rest) return url;
-    return `${u.origin}${prefix}/image/upload/${params}/${rest}`;
+    const firstSeg = rest.split("/")[0];
+    const startsWithV = /^v\d+$/.test(firstSeg);
+    const finalPath = startsWithV
+      ? `${u.origin}${prefix}/image/upload/${params}/${rest}`
+      : `${u.origin}${prefix}/image/upload/${rest}`;
+    return finalPath;
   } catch {
     return url;
   }
@@ -34,8 +40,8 @@ export default function SmartFigureImage({
            (min-width: 640px) calc(100vw - 3rem),
            calc(100vw - 2rem)`,
 }: Props) {
-  const bg = cld(src, "f_auto,q_auto,c_fill,g_auto,w_1600,ar_16:9,e_blur:800");
-  const fg = cld(src, "f_auto,q_auto,c_fit,g_auto,w_1600");
+  const bg = cld(src, "f_auto,q_auto,c_fill,ar_16:9,e_blur:800");
+  const fg = cld(src, "f_auto,q_auto,c_fit,w_1600");
 
   return (
     <div className={clsx("relative overflow-hidden rounded-xl", className)}>

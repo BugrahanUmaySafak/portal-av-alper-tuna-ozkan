@@ -1,3 +1,4 @@
+// src/features/makalelerim/components/EditableKeywords.tsx
 "use client";
 
 import { useState } from "react";
@@ -24,6 +25,11 @@ export default function EditableKeywords({
   return (
     <div>
       <label className="text-sm font-medium">Anahtar Kelimeler</label>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Konuyu tanımlayan kısa kelimeler ekleyin. Her birini yazıp Enter’a
+        basın. 3–8 arası yeterlidir.
+      </p>
+
       <div className="mt-2 flex flex-wrap gap-2">
         {keywords.map((k) => (
           <Badge key={k} className="gap-1">
@@ -45,8 +51,9 @@ export default function EditableKeywords({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), add())}
-          placeholder="kelime ekle ve Enter"
+          placeholder="örn: emlak hukuku, tapu, kira tahliye"
           className="flex-1 rounded-md border px-3 py-2"
+          aria-describedby="kw-help"
         />
         <button
           type="button"
@@ -56,6 +63,10 @@ export default function EditableKeywords({
           Ekle
         </button>
       </div>
+
+      <p id="kw-help" className="mt-2 text-xs text-muted-foreground">
+        Anahtar kelimeler içeriğin bulunmasına yardımcı olur; aşırıya kaçmayın.
+      </p>
     </div>
   );
 }

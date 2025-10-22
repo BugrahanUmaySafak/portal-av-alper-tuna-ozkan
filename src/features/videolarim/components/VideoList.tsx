@@ -17,16 +17,12 @@ export default function VideoList() {
     return (
       <Section>
         <Container>
-          {/* Başlık ve buton skeleton durumunda da sabit kalır */}
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold">Videolarım</h1>
             <Button
               onClick={() => router.push("/videolarim/new")}
               className="text-base"
             >
               Yeni Video Ekle
             </Button>
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, i) => (

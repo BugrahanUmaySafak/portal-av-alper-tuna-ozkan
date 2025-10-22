@@ -47,12 +47,7 @@ export default function ContactCard({
               {contact.title}
             </CardTitle>
             <div className="mt-2">
-              <Badge
-                variant="secondary"
-                className="text-[12px] font-medium bg-muted/40 text-foreground/90"
-              >
-                {createdStr}
-              </Badge>
+              <Badge className="text-[12px] font-medium">{createdStr}</Badge>
             </div>
           </div>
 

@@ -1,6 +1,5 @@
 // src/features/makalelerim/components/ArticleEditor.tsx
 "use client";
-
 import { useEffect, useRef } from "react";
 import "quill/dist/quill.snow.css";
 
@@ -12,9 +11,7 @@ export default function ArticleEditor({
   onChange: (html: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-
   const quillRef = useRef<import("quill").default | null>(null);
-
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
@@ -24,7 +21,6 @@ export default function ArticleEditor({
 
     (async () => {
       if (!hostEl || quillRef.current) return;
-
       const { default: Quill } = await import("quill");
       if (!mounted) return;
 
@@ -33,6 +29,8 @@ export default function ArticleEditor({
 
       const q = new Quill(el, {
         theme: "snow",
+        placeholder:
+          "Örn: Giriş paragrafı yazın. Alt başlıklar (H2/H3), maddeli listeler ve bağlantılar ekleyebilirsiniz.",
         modules: {
           toolbar: [
             [{ header: [1, 2, 3, false] }],
@@ -45,17 +43,11 @@ export default function ArticleEditor({
       });
 
       q.clipboard.dangerouslyPasteHTML(value || "");
-
-      const handleChange = () => {
-        onChangeRef.current(q.root.innerHTML);
-      };
+      const handleChange = () => onChangeRef.current(q.root.innerHTML);
       q.on("text-change", handleChange);
-
       quillRef.current = q;
 
-      return () => {
-        q.off("text-change", handleChange);
-      };
+      return () => q.off("text-change", handleChange);
     })();
 
     return () => {
@@ -63,7 +55,8 @@ export default function ArticleEditor({
       if (hostEl) hostEl.innerHTML = "";
       quillRef.current = null;
     };
-  },[]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const q = quillRef.current;
@@ -76,5 +69,17 @@ export default function ArticleEditor({
     }
   }, [value]);
 
-  return <div ref={containerRef} className="min-h-[320px]" />;
+  return (
+    <div
+      ref={containerRef}
+      className="min-h-[320px]
+      [&_.ql-editor]:text-[15px] [&_.ql-editor]:leading-7
+      [&_.ql-editor_p]:m-0
+      [&_.ql-editor_h2]:m-0 [&_.ql-editor_h2]:text-2xl [&_.ql-editor_h2]:font-semibold
+      [&_.ql-editor_h3]:m-0 [&_.ql-editor_h3]:text-xl [&_.ql-editor_h3]:font-semibold
+      [&_.ql-editor_ul]:my-4 [&_.ql-editor_ul]:pl-6
+      [&_.ql-editor_ol]:my-4 [&_.ql-editor_ol]:pl-6
+      [&_.ql-editor_li]:my-1"
+    />
+  );
 }
