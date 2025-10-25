@@ -1,6 +1,11 @@
-// src/app/videolarim/[id]/page.tsx
 import VideoEditWrapper from "@/features/videolarim/containers/VideoEditWrapper";
 
-export default function Page({ params }: { params: { id: string } }) {
-  return <VideoEditWrapper id={params.id} />;
+// Next 15: params bir Promise olduğu için await etmeliyiz
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return <VideoEditWrapper id={id} />;
 }

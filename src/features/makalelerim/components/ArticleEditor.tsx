@@ -1,7 +1,11 @@
 // src/features/makalelerim/components/ArticleEditor.tsx
 "use client";
+
 import { useEffect, useRef } from "react";
 import "quill/dist/quill.snow.css";
+
+// Quill'in getSelection() çıktısına uygun minimal tip
+type QuillRange = { index: number; length: number } | null;
 
 export default function ArticleEditor({
   value,
@@ -39,6 +43,31 @@ export default function ArticleEditor({
             ["link"],
             ["clean"],
           ],
+          keyboard: {
+            bindings: {
+              // Enter -> tek satır (textarea davranışı)
+              handleEnter: {
+                key: 13,
+                handler(range: QuillRange) {
+                  if (!range) return true;
+                  q.insertText(range.index, "\n", "user");
+                  q.setSelection(range.index + 1, 0, "user");
+                  return false; // default paragraf eklemeyi engelle
+                },
+              },
+              // Shift+Enter -> yine tek satır
+              handleShiftEnter: {
+                key: 13,
+                shiftKey: true,
+                handler(range: QuillRange) {
+                  if (!range) return true;
+                  q.insertText(range.index, "\n", "user");
+                  q.setSelection(range.index + 1, 0, "user");
+                  return false;
+                },
+              },
+            },
+          },
         },
       });
 
@@ -72,14 +101,17 @@ export default function ArticleEditor({
   return (
     <div
       ref={containerRef}
-      className="min-h-[320px]
-      [&_.ql-editor]:text-[15px] [&_.ql-editor]:leading-7
-      [&_.ql-editor_p]:m-0
-      [&_.ql-editor_h2]:m-0 [&_.ql-editor_h2]:text-2xl [&_.ql-editor_h2]:font-semibold
-      [&_.ql-editor_h3]:m-0 [&_.ql-editor_h3]:text-xl [&_.ql-editor_h3]:font-semibold
-      [&_.ql-editor_ul]:my-4 [&_.ql-editor_ul]:pl-6
-      [&_.ql-editor_ol]:my-4 [&_.ql-editor_ol]:pl-6
-      [&_.ql-editor_li]:my-1"
+      className="
+        min-h-[320px]
+        [&_.ql-editor]:text-[15px]
+        [&_.ql-editor]:leading-6
+        [&_.ql-editor_p]:m-0
+        [&_.ql-editor_h2]:m-0 [&_.ql-editor_h2]:text-2xl [&_.ql-editor_h2]:font-semibold
+        [&_.ql-editor_h3]:m-0 [&_.ql-editor_h3]:text-xl [&_.ql-editor_h3]:font-semibold
+        [&_.ql-editor_ul]:my-4 [&_.ql-editor_ul]:pl-6
+        [&_.ql-editor_ol]:my-4 [&_.ql-editor_ol]:pl-6
+        [&_.ql-editor_li]:my-1
+      "
     />
   );
 }

@@ -1,4 +1,3 @@
-// src/components/media/SmartFigureImage.tsx
 "use client";
 
 import Image from "next/image";
@@ -22,8 +21,8 @@ function cld(url: string, params: string) {
 }
 
 type Props = {
-  src: string;
-  alt: string;
+  src?: string | null;
+  alt?: string;
   className?: string;
   withBottomGradient?: boolean;
   sizes?: string;
@@ -32,7 +31,7 @@ type Props = {
 
 export default function SmartFigureImage({
   src,
-  alt,
+  alt = "",
   className,
   withBottomGradient = true,
   priority = false,
@@ -40,24 +39,80 @@ export default function SmartFigureImage({
            (min-width: 640px) calc(100vw - 3rem),
            calc(100vw - 2rem)`,
 }: Props) {
-  const bg = cld(src, "f_auto,q_auto,c_fill,ar_16:9,e_blur:800");
-  const fg = cld(src, "f_auto,q_auto,c_fit,w_1600");
+  if (!src) {
+    return (
+      <div
+        className={clsx(
+          "relative overflow-hidden rounded-xl",
+          "w-full aspect-[16/9]",
+          "bg-muted/30 ring-1 ring-border/50",
+          className
+        )}
+        aria-label="Henüz görsel seçilmedi"
+      />
+    );
+  }
 
+  const isBlob = src.startsWith("blob:") || src.startsWith("data:");
+  const isCloudinary = (() => {
+    try {
+      return new URL(src).hostname.includes("res.cloudinary.com");
+    } catch {
+      return false;
+    }
+  })();
+
+  if (isCloudinary) {
+    const bg = cld(src, "f_auto,q_auto,c_fill,ar_16:9,e_blur:800");
+    const fg = cld(src, "f_auto,q_auto,c_fit,w_1600");
+    return (
+      <div className={clsx("relative overflow-hidden rounded-xl", className)}>
+        <Image
+          src={bg}
+          alt=""
+          aria-hidden
+          fill
+          sizes={sizes}
+          className="object-cover scale-105 will-change-transform"
+          decoding="async"
+          draggable={false}
+          priority={priority}
+        />
+        <Image
+          src={fg}
+          alt={alt}
+          fill
+          sizes={sizes}
+          className="object-contain object-center"
+          decoding="async"
+          draggable={false}
+          priority={priority}
+        />
+        {withBottomGradient && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background/40 to-transparent" />
+        )}
+      </div>
+    );
+  }
+
+  // Blob/Data veya Cloudinary dışı URL — CSS blur ile arka plan
   return (
     <div className={clsx("relative overflow-hidden rounded-xl", className)}>
       <Image
-        src={bg}
+        src={src}
         alt=""
         aria-hidden
         fill
         sizes={sizes}
-        className="object-cover scale-105 will-change-transform"
+        className="object-cover will-change-transform"
+        style={{ filter: "blur(20px)", transform: "scale(1.08)" }}
         decoding="async"
         draggable={false}
         priority={priority}
+        unoptimized={isBlob}
       />
       <Image
-        src={fg}
+        src={src}
         alt={alt}
         fill
         sizes={sizes}
@@ -65,6 +120,7 @@ export default function SmartFigureImage({
         decoding="async"
         draggable={false}
         priority={priority}
+        unoptimized={isBlob}
       />
       {withBottomGradient && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background/40 to-transparent" />

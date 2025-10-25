@@ -1,4 +1,3 @@
-// src/features/makalelerim/containers/NewArticleInline.tsx
 "use client";
 
 import Container from "@/components/container/Container";
@@ -18,11 +17,15 @@ import { createArticle } from "../actions/createArticle";
 
 export default function NewArticleInline() {
   const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
   const [imageAlt, setImageAlt] = useState("");
-  const [imageUrl] = useState("/placeholder/cover.png");
+
+  // Görsel seçilene kadar boş zemin
+  const [imageUrl] = useState("");
+
   const [keywords, setKeywords] = useState<string[]>([]);
   const [seo, setSeo] = useState({
     title: "",

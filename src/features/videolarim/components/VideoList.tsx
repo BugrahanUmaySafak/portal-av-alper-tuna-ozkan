@@ -17,12 +17,12 @@ export default function VideoList() {
     return (
       <Section>
         <Container>
-            <Button
-              onClick={() => router.push("/videolarim/new")}
-              className="text-base"
-            >
-              Yeni Video Ekle
-            </Button>
+          <Button
+            onClick={() => router.push("/videolarim/new")}
+            className="text-base"
+          >
+            Yeni Video Ekle
+          </Button>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, i) => (
@@ -83,9 +83,7 @@ export default function VideoList() {
       <Container>
         {/* Başlık + Buton */}
         <div className="flex items-center mb-6">
-          <Button
-            onClick={() => router.push("/videolarim/new")}
-          >
+          <Button onClick={() => router.push("/videolarim/new")}>
             Yeni Video Ekle
           </Button>
         </div>
