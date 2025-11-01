@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -33,6 +34,7 @@ export default function VideoEdit({
   initial: Video;
   onUpdated?: () => void;
 }) {
+  const router = useRouter();
   const { categories } = useCategories();
 
   const form = useForm<FormValues>({
@@ -80,7 +82,11 @@ export default function VideoEdit({
         categoryId: data.categoryId || undefined,
       });
       toast.success("Video güncellendi");
+      // önce mevcut callback’i çalıştır
       onUpdated?.();
+      // sonra listeye dön + refresh
+      router.push("/videolarim");
+      router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Bir hata oluştu");
     }

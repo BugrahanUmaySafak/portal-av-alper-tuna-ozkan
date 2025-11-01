@@ -12,6 +12,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  title: "Panel | Alper Tuna Ozkan ",
+  description: "Alper Tuna Ozkan || Panel",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"
   ),

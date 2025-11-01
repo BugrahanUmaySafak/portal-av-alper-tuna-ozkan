@@ -233,7 +233,7 @@ export default function LatestInformative({
                           <div className="flex items-center text-sm text-gray-500">
                             <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                             <span className="truncate">
-                              {formatTR(latestArticle.publishedAt)}
+                              {formatTR(latestArticle.createdAt)}
                             </span>
                           </div>
                         </div>
@@ -264,7 +264,7 @@ export default function LatestInformative({
                             <div className="flex items-center text-sm text-gray-500">
                               <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                               <span className="truncate">
-                                {formatTR(yazi.publishedAt)}
+                                {formatTR(yazi.createdAt)}
                               </span>
                             </div>
                           </div>

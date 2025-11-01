@@ -64,7 +64,9 @@ export default function NewVideoForm() {
         categoryId: data.categoryId || undefined,
       });
       toast.success("Video oluşturuldu");
-      router.replace("/videolarim");
+      // 👇 direkt listeye dön + yenile
+      router.push("/videolarim");
+      router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Video oluşturulamadı");
     }

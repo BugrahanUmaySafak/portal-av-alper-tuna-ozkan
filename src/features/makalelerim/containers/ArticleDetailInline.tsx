@@ -135,7 +135,7 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground mb-6">
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays className="h-4 w-4" />
-              {formatTR(initial.publishedAt)}
+              {formatTR(initial.createdAt)}
             </span>
             {initial.updatedAt && (
               <span className="inline-flex items-center gap-1.5">

@@ -19,7 +19,7 @@ export type Article = {
   categoryId?: string;
 
   keywords: string[];
-  publishedAt: string; // ISO
+  createdAt: string; // ISO
   updatedAt?: string; // ISO
   readingMinutes?: number;
 };

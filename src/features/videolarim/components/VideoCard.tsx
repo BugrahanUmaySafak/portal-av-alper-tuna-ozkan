@@ -1,13 +1,8 @@
-// src/features/videolarim/components/VideoCard.tsx
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import LiteYouTubeEmbed from "react-lite-youtube-embed";
-import "react-lite-youtube-embed/dist/LiteYouTubeEmbed.css";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogTrigger,
@@ -15,6 +10,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import VideoDelete from "@/features/videolarim/components/VideoDelete";
@@ -49,114 +45,164 @@ export default function VideoCard({
 }: Props) {
   const [open, setOpen] = useState(false);
 
-  // 👇 güvenli flag
-  const hasYoutubeId = typeof youtubeId === "string" && youtubeId.trim() !== "";
-  // 👇 sadece varsa thumbnail üret
-  const ytThumb = hasYoutubeId
-    ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
-    : null;
+  const YT = useMemo(
+    () => ({
+      maxres: youtubeId
+        ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`
+        : "",
+      sd: youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/sddefault.jpg` : "",
+      hq: youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` : "",
+    }),
+    [youtubeId]
+  );
+
+  // panelde çoğu zaman sadece coverUrl geliyor, blur gelmiyor → coverUrl varsa kapak var diyelim
+  const hasRealCover =
+    typeof coverUrl === "string" && coverUrl.trim().length > 0;
+
+  const [src, setSrc] = useState<string>(
+    hasRealCover ? coverUrl! : YT.maxres || YT.hq
+  );
+  const [triedMaxres, setTriedMaxres] = useState(false);
+  const [triedSd, setTriedSd] = useState(false);
+
+  function handleThumbError() {
+    // cloudinary 404 → youtube'a geç
+    if (hasRealCover) {
+      setSrc(YT.maxres || YT.hq);
+      return;
+    }
+
+    // youtube maxres 404 → sd
+    if (!triedMaxres) {
+      setTriedMaxres(true);
+      setSrc(YT.sd || YT.hq);
+      return;
+    }
+
+    // sd de 404 → hq
+    if (!triedSd) {
+      setTriedSd(true);
+      setSrc(YT.hq);
+      return;
+    }
+  }
+
+  const sizes = "(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 420px";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Card className="w-full overflow-hidden rounded-2xl p-0 transition hover:shadow-lg hover:bg-slate-50">
+        {/* KAPAK */}
         <div className="relative w-full aspect-video rounded-t-2xl overflow-hidden bg-slate-200">
-          {showDelete && (
-            <div className="absolute right-3 top-3 z-10">
+          {/* sil butonu en üstte, dialog tıklamasından etkilenmesin */}
+          {showDelete ? (
+            <div className="absolute right-3 top-3 z-20">
               <VideoDelete id={id} onDeleted={onDeleted} />
             </div>
-          )}
+          ) : null}
 
-          {/* 1. Öncelik: Cloudinary kapak */}
-          {coverUrl ? (
+          {/* asıl görsel */}
+          {src ? (
             <Image
-              src={coverUrl}
+              src={src}
               alt={title}
               fill
-              className="object-cover rounded-t-2xl"
-              placeholder="empty"
-              sizes="(max-width:640px) 92vw, (max-width:1024px) 45vw, 420px"
+              className="object-cover"
+              onError={handleThumbError}
               priority={priority}
-            />
-          ) : hasYoutubeId && ytThumb ? (
-            // 2. Öncelik: YouTube thumb (sadece ID varsa!)
-            <Image
-              src={ytThumb}
-              alt={title}
-              fill
-              className="object-cover rounded-t-2xl"
-              placeholder="empty"
-              sizes="(max-width:640px) 92vw, (max-width:1024px) 45vw, 420px"
-              priority={priority}
+              fetchPriority={priority ? "high" : undefined}
+              sizes={sizes}
             />
           ) : (
-            // 3. Fallback: boş state → artık 404 yok 👇
-            <div className="absolute inset-0 flex items-center justify-center text-slate-500 text-sm">
-              YouTube ID girilmedi
+            <div className="absolute inset-0 grid place-items-center text-slate-500 text-sm">
+              Kapak görseli yok
             </div>
           )}
+
+          {/* üstüne tıklayınca dialog açılsın → bu bir button değilse nested-button olmaz */}
+          <DialogTrigger asChild>
+            <div
+              role="button"
+              aria-label={`Videoyu aç: ${title}`}
+              tabIndex={0}
+              className="absolute inset-0 z-10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/80"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") setOpen(true);
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 grid place-items-center pointer-events-none">
+                <div className="w-12 h-12 rounded-full bg-red-600/90 text-white grid place-items-center shadow-md">
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </DialogTrigger>
         </div>
 
-        <DialogTrigger asChild>
-          <div
-            className="flex flex-col cursor-pointer"
-            role="button"
-            tabIndex={0}
-            aria-label={`Videoyu aç: ${title}`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") setOpen(true);
-            }}
-          >
-            <CardHeader className="pt-4 pb-2 px-4">
-              <CardTitle className="text-lg sm:text-xl truncate" title={title}>
-                {title}
-              </CardTitle>
-            </CardHeader>
+        {/* METİN / ALT KISIM */}
+        <CardHeader className="pt-4 pb-2 px-4 space-y-2">
+          <CardTitle className="text-lg sm:text-xl truncate" title={title}>
+            {title}
+          </CardTitle>
+          {category?.name ? (
+            <Badge variant="category" className="w-fit">
+              {category.name}
+            </Badge>
+          ) : null}
+        </CardHeader>
 
-            <CardContent className="px-4 pb-4 space-y-3">
-              <p className="text-xs text-muted-foreground">
-                {formatTR(createdAt)}
-              </p>
-              <Button asChild variant="default" size="sm" className="w-full">
-                <Link href={`/videolarim/${id}`} prefetch={false}>
-                  Videoyu düzenle
-                </Link>
-              </Button>
-            </CardContent>
-          </div>
-        </DialogTrigger>
+        <CardContent className="px-4 pb-4 space-y-3">
+          <p className="text-xs text-muted-foreground">{formatTR(createdAt)}</p>
+          {/* 👇 ana sitedeki “Videoyu İzlemek İçin Tıklayın” yerine bu */}
+          <Button asChild variant="default" size="sm" className="w-full">
+            <Link href={`/videolarim/${id}`} prefetch={false}>
+              Videoyu düzenle
+            </Link>
+          </Button>
+        </CardContent>
       </Card>
 
+      {/* DIALOG → aynen ana sitedeki gibi iframe ile */}
       <DialogContent className="w-full max-w-sm sm:max-w-2xl md:max-w-3xl p-0 rounded-lg">
         <div className="p-4 sm:p-6 md:p-8">
-          <div className="relative w-full aspect-[16/9] rounded-md overflow-hidden bg-black/70">
-            <div className="absolute inset-0">
-              {hasYoutubeId ? (
-                <LiteYouTubeEmbed
-                  id={youtubeId}
-                  title={title}
-                  noCookie
-                  poster="maxresdefault"
-                  adNetwork={false}
-                  wrapperClass="yt-lite w-full h-full !m-0 !p-0"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/80 text-sm">
-                  YouTube ID yok
-                </div>
-              )}
-            </div>
+          <div className="relative w-full aspect-[16/9] rounded-md overflow-hidden bg-black">
+            {open && youtubeId ? (
+              <iframe
+                key={youtubeId}
+                className="absolute inset-0 h-full w-full"
+                src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+                title={title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="eager"
+              />
+            ) : (
+              <div className="absolute inset-0 grid place-items-center text-white/80 text-sm">
+                YouTube ID yok
+              </div>
+            )}
           </div>
 
           <div className="pt-4 sm:pt-6 space-y-2">
-            <DialogTitle className="text-lg md:text-xl font-semibold">
+            <DialogTitle className="text-base sm:text-lg md:text-xl font-semibold">
               {title}
             </DialogTitle>
-
             {category?.name ? (
-              <Badge className="text-xs">{category.name}</Badge>
+              <Badge variant="category" className="w-fit">
+                {category.name}
+              </Badge>
             ) : null}
-
-            <DialogDescription className="mt-1 text-sm text-muted-foreground">
+            <DialogDescription className="text-sm text-muted-foreground">
               {formatTR(createdAt)}
             </DialogDescription>
           </div>

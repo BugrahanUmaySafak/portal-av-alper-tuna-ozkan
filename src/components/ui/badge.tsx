@@ -5,6 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 export const badgeVariants = cva(
+  // base
   "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   {
     variants: {
@@ -13,6 +14,9 @@ export const badgeVariants = cva(
           "bg-blue-50 text-blue-700 border-blue-200 px-2 py-2 text-sm hover:bg-blue-100",
         glass:
           "border-white/30 text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:text-white/90",
+        // 👇 yeni: kategori etiketi için
+        category:
+          "bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100/70",
       },
       size: {
         md: "px-2 py-2",

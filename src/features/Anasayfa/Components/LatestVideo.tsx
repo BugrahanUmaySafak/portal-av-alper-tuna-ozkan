@@ -2,20 +2,26 @@
 
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import VideoCard from "@/features/videolarim/components/VideoCard";
-import type { Video } from "@/features/videolarim/types";
 import { useVideos } from "@/features/videolarim/hooks/useVideos";
+import type { Video } from "@/features/videolarim/types";
+// bu: ana sitedeki dialog’lu kart
+import VideoCard from "@/features/videolarim/components/VideoCard";
 
 export default function LatestVideo() {
   const router = useRouter();
   const { videos, isLoading, isError } = useVideos();
 
-  if (isLoading) return <Skeleton className="h-28 w-full max-w-xl" />;
+  if (isLoading) {
+    return <Skeleton className="h-[320px] w-full max-w-[380px]" />;
+  }
 
   if (isError || !videos?.length) {
     return (
-      <div className="text-muted-foreground text-base">
-        Henüz video bulunamadı.
+      <div className="w-full max-w-[380px] space-y-2">
+        <h2 className="text-lg md:text-xl font-semibold">
+          Son Paylaşılan Video
+        </h2>
+        <p className="text-sm text-muted-foreground">Henüz video bulunamadı.</p>
       </div>
     );
   }
@@ -23,14 +29,19 @@ export default function LatestVideo() {
   const v: Video = videos[0];
 
   return (
-    <div className="space-y-3">
-      <h2 className="text-xl font-semibold">Son Paylaşılan Video</h2>
+    <div className="w-full max-w-[380px] space-y-3">
+      <h2 className="text-lg md:text-xl font-semibold">Son Paylaşılan Video</h2>
 
+      {/* dışı tıklanabilir, içeriği devre dışı */}
       <div
         role="button"
+        tabIndex={0}
         onClick={() => router.push("/videolarim")}
-        className="cursor-pointer select-none max-w-xl"
-        aria-label="Videolar sayfasına git"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") router.push("/videolarim");
+        }}
+        className="block w-full cursor-pointer rounded-2xl transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+        aria-label="Videolarım sayfasına git"
       >
         <div className="pointer-events-none">
           <VideoCard
@@ -38,9 +49,10 @@ export default function LatestVideo() {
             title={v.title}
             youtubeId={v.youtubeId}
             createdAt={v.createdAt}
-            showDelete={false}
-            // (Varsa) kapak ve blur verileri API’den gelebilir
             coverUrl={v.coverUrl}
+            category={v.category}
+            // ana sitedeki ilk kart gibi hızlı yüklensin
+            priority
           />
         </div>
       </div>

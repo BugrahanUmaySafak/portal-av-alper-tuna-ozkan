@@ -1,3 +1,4 @@
+// src/features/videolarim/components/VideoList.tsx (panel)
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -7,11 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import VideoCard from "@/features/videolarim/components/VideoCard";
 import { useVideos } from "@/features/videolarim/hooks/useVideos";
-import type { Video } from "@/features/videolarim/types";
 
 export default function VideoList() {
   const router = useRouter();
-  const { videos, isLoading, isError, error, mutate } = useVideos();
+  const { videos, isLoading, isError, error } = useVideos();
 
   if (isLoading) {
     return (
@@ -93,13 +93,7 @@ export default function VideoList() {
               key={v.id}
               {...v}
               priority={i === 0}
-              onDeleted={() => {
-                mutate(
-                  (prev?: Video[]) =>
-                    prev ? prev.filter((x) => x.id !== v.id) : prev,
-                  { revalidate: false }
-                );
-              }}
+              // onDeleted VERMİYORUZ → VideoDelete kendi içinde reload yapıyor
             />
           ))}
         </div>

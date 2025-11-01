@@ -1,5 +1,5 @@
-// ArticleDelete.tsx
 "use client";
+
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -12,40 +12,41 @@ export default function ArticleDelete({
   id: string;
   onDeleted?: () => void;
 }) {
-  function confirmDelete() {
-    toast("Bu makaleyi silmek istediğinize emin misiniz?", {
-      description: "Bu işlem geri alınamaz.",
-      action: {
-        label: "Sil",
-        onClick: async () => {
-          try {
-            await deleteArticle(id);
-            toast.success("Makale silindi");
-            onDeleted?.();
-          } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Silme hatası");
-          }
-        },
-      },
-      cancel: { label: "Vazgeç", onClick: () => {} },
-    });
+  async function handleDelete(e: React.MouseEvent) {
+    // kartın linkine gitmesini engelle
+    e.preventDefault();
+    e.stopPropagation();
+
+    const ok = window.confirm("Bu makaleyi silmek istediğinize emin misiniz?");
+    if (!ok) return;
+
+    try {
+      await deleteArticle(id);
+      toast.success("Makale silindi");
+
+      onDeleted?.();
+
+      if (typeof window !== "undefined") {
+        window.location.reload();
+      }
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Makale silinirken hata oluştu"
+      );
+    }
   }
 
   return (
     <Button
+      type="button"
       variant="destructive"
-      size="sm"
-      className="gap-1 rounded-full px-3 h-8 shadow-md"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        confirmDelete();
-      }}
+      size="icon"
+      onClick={handleDelete}
       aria-label="Makaleyi sil"
       title="Makaleyi sil"
+      className="h-8 w-8 rounded-full shadow-md bg-destructive/95 hover:bg-destructive z-20"
     >
       <Trash2 className="h-4 w-4" />
-      <span>Sil</span>
     </Button>
   );
 }

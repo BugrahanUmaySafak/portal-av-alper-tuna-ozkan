@@ -1,17 +1,16 @@
-// src/features/Anasayfa/Components/LatestArticle.tsx
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import SmartFigureImage from "@/components/media/SmartFigureImage";
 import { CalendarDays } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useArticles } from "@/features/makalelerim/actions/useArticles";
 import type { Article } from "@/features/makalelerim/types";
 
 function formatTR(iso: string) {
+  if (!iso) return "";
   try {
     return new Date(iso).toLocaleDateString("tr-TR", {
       year: "numeric",
@@ -27,59 +26,73 @@ export default function LatestArticle() {
   const router = useRouter();
   const { data: articles, isLoading, isError } = useArticles();
 
-  if (isLoading) return <Skeleton className="h-28 w-full max-w-xl" />;
+  if (isLoading) {
+    return <Skeleton className="h-[320px] w-full max-w-[380px]" />;
+  }
 
   if (isError || !articles?.length) {
     return (
-      <div className="text-muted-foreground text-base">
-        Henüz makale bulunamadı.
+      <div className="w-full max-w-[380px] space-y-2">
+        <h2 className="text-lg md:text-xl font-semibold">
+          Son Yayınlanan Makale
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Henüz makale bulunamadı.
+        </p>
       </div>
     );
   }
 
   const a: Article = articles[0];
+  const dateToShow = a.createdAt;
 
   return (
-    <div className="space-y-3 max-w-xl">
-      <h2 className="text-xl font-semibold">Son Yayınlanan Makale</h2>
+    <div className="w-full max-w-[380px] space-y-3">
+      <h2 className="text-lg md:text-xl font-semibold">
+        Son Yayınlanan Makale
+      </h2>
 
       <div
         role="button"
+        tabIndex={0}
         onClick={() => router.push("/makalelerim")}
-        className="cursor-pointer select-none"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") router.push("/makalelerim");
+        }}
+        className="block w-full cursor-pointer rounded-2xl transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+        aria-label="Makalelerim sayfasına git"
       >
+        {/* içeriği devre dışı bırakıyoruz ki içinde buton/embed olsa bile nested button hatası vermesin */}
         <div className="pointer-events-none">
-          <Link href={`/makalelerim/${a.slug}`} className="block">
-            {/* p-0: iç boşluk yok; overflow-hidden+rounded sadece kartta */}
-            <Card className="group flex flex-col overflow-hidden rounded-xl border-0 shadow-sm hover:shadow-md transition p-0">
-              <SmartFigureImage
-                src={a.image.url}
-                tinySrc={a.image.tinyUrl}
-                alt={a.image.alt}
-                /* Kartın üst kenarında 1px dikişi yok etmek için bindir */
-                className="w-full h-48 sm:h-56 lg:h-60 -mt-px"
-                withBottomGradient={false}
-              />
+          <Card className="group h-full flex flex-col overflow-hidden transition hover:shadow-lg p-0 border-0 rounded-xl">
+            <SmartFigureImage
+              src={a.image.url}
+              tinySrc={a.image.tinyUrl ?? a.image.url}
+              alt={a.image.alt}
+              className="w-full h-56 sm:h-60 lg:h-64 rounded-t-xl"
+            />
 
-              <CardHeader className="pb-1">
-                <CardTitle className="text-lg font-semibold leading-7">
-                  {a.title}
-                </CardTitle>
-                <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl font-semibold leading-8 line-clamp-2">
+                {a.title}
+              </CardTitle>
+
+              <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
                   <CalendarDays className="h-4 w-4" />
-                  {formatTR(a.publishedAt)}
-                </div>
-              </CardHeader>
+                  {dateToShow ? formatTR(dateToShow) : "Tarih yok"}
+                </span>
+              </div>
+            </CardHeader>
 
-              <CardContent className="pb-4">
-                <div className="flex flex-wrap gap-2">
-                  {a.keywords.slice(0, 3).map((k) => (
-                    <Badge key={k}>{k}</Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <CardContent className="mb-4">
+              <div className="flex flex-wrap gap-2">
+                {a.keywords?.slice(0, 3).map((k) => (
+                  <Badge key={k}>{k}</Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

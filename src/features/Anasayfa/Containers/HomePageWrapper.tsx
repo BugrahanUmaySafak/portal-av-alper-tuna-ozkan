@@ -13,26 +13,24 @@ export default function HomePageWrapper() {
       <Container>
         <LatestContact />
 
-        <div
-          className="
-            mt-6
-            flex flex-col gap-12
-            md:flex-row md:items-start
-          "
-        >
-          {/* Sol sütun — Video */}
-          <div className="w-full md:max-w-xl">
+        {/* ana sitedeki 3 sütun hissi: sol video, ortada boş, sağda makale */}
+        <div className="mt-6 grid gap-10 lg:grid-cols-3 items-start">
+          {/* 1. sütun: video */}
+          <div className="flex justify-start">
             <LatestVideo />
           </div>
 
-          {/* Sağ sütun — Makale (sağa yaslı) */}
-          <div className="w-full md:max-w-xl md:ml-auto">
+          {/* 2. sütun: boş */}
+          <div className="hidden lg:block" />
+
+          {/* 3. sütun: makale */}
+          <div className="flex justify-end">
             <LatestArticle />
           </div>
         </div>
       </Container>
 
-      {/* Alt bilgi içerik bloğu: container dışında tam genişlik */}
+      {/* alt blok aynı kalsın */}
       <LatestInformative />
     </Section>
   );

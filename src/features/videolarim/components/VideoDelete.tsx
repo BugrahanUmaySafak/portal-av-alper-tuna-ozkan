@@ -1,6 +1,6 @@
+// src/features/videolarim/components/VideoDelete.tsx
 "use client";
 
-import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -13,42 +13,35 @@ export default function VideoDelete({
   id: string;
   onDeleted?: () => void;
 }) {
-  const [loading, setLoading] = useState(false);
+  async function handleDelete() {
+    if (!confirm("Bu videoyu silmek istediğinize emin misiniz?")) return;
 
-  function confirmDelete() {
-    toast("Bu videoyu silmek istediğinize emin misiniz?", {
-      action: {
-        label: "Evet",
-        onClick: async () => {
-          try {
-            setLoading(true);
-            await deleteVideo(id);
-            toast.success("Video silindi");
-            onDeleted?.();
-          } catch (e: unknown) {
-            const msg =
-              e instanceof Error ? e.message : "Silme sırasında hata oluştu";
-            toast.error(msg);
-          } finally {
-            setLoading(false);
-          }
-        },
-      },
-      cancel: { label: "Vazgeç", onClick: () => {} },
-    });
+    try {
+      await deleteVideo(id);
+      toast.success("Video silindi");
+
+      // varsa dışarıdan gelen callback
+      onDeleted?.();
+
+      // senin istediğin davranış: tam sayfa yenile
+      if (typeof window !== "undefined") {
+        window.location.reload();
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Silme işlemi başarısız");
+    }
   }
 
   return (
     <Button
+      type="button"
       variant="destructive"
       size="sm"
-      className="h-8"
-      disabled={loading}
-      onClick={confirmDelete}
+      className="h-8 w-8 p-0 rounded-full shadow-md"
+      onClick={handleDelete}
       title="Videoyu sil"
     >
-      <Trash2 className="w-4 h-4 mr-1" />
-      Sil
+      <Trash2 className="h-4 w-4" />
     </Button>
   );
 }
