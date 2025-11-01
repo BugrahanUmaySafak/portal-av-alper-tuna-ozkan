@@ -8,7 +8,7 @@ import { useVideos } from "@/features/videolarim/hooks/useVideos";
 
 export default function LatestVideo() {
   const router = useRouter();
-  const { videos, isLoading, isError } = useVideos(); // <- mevcut hook
+  const { videos, isLoading, isError } = useVideos();
 
   if (isLoading) return <Skeleton className="h-28 w-full max-w-xl" />;
 
@@ -30,6 +30,7 @@ export default function LatestVideo() {
         role="button"
         onClick={() => router.push("/videolarim")}
         className="cursor-pointer select-none max-w-xl"
+        aria-label="Videolar sayfasına git"
       >
         <div className="pointer-events-none">
           <VideoCard
@@ -38,6 +39,8 @@ export default function LatestVideo() {
             youtubeId={v.youtubeId}
             createdAt={v.createdAt}
             showDelete={false}
+            // (Varsa) kapak ve blur verileri API’den gelebilir
+            coverUrl={v.coverUrl}
           />
         </div>
       </div>

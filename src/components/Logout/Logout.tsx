@@ -5,6 +5,9 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { useEffect, useState, useTransition } from "react";
 
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+
 export default function Logout() {
   // 👇 SSR hydration hatasını önlemek için: önce mount olsun, sonra render et
   const [mounted, setMounted] = useState(false);
@@ -18,12 +21,13 @@ export default function Logout() {
         onClick: async () => {
           startTransition(async () => {
             try {
-              const res = await fetch("/api/auth/logout", {
+              const res = await fetch(`${API_BASE}/api/auth/logout`, {
                 method: "POST",
                 credentials: "include",
               });
               if (res.ok) {
                 toast.success("Başarıyla çıkış yapıldı.");
+                // cookie geldiği origin'e ait, paneli yenile
                 window.location.replace("/");
               } else {
                 toast.error("Çıkış yapılamadı, tekrar deneyin.");
@@ -41,7 +45,7 @@ export default function Logout() {
     });
   }
 
-  if (!mounted) return null; // 🔥 SSR'da render etme → hydration mismatch biter
+  if (!mounted) return null;
 
   return (
     <Button

@@ -1,5 +1,6 @@
 "use client";
-import VideoList from "../components/VideoList";
+
+import VideoList from "@/features/videolarim/components/VideoList";
 
 export default function VideoListWrapper() {
   return <VideoList />;

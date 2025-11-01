@@ -1,10 +1,7 @@
-// src/features/makalelerim/components/ArticleEditor.tsx
 "use client";
-
 import { useEffect, useRef } from "react";
 import "quill/dist/quill.snow.css";
 
-// Quill'in getSelection() çıktısına uygun minimal tip
 type QuillRange = { index: number; length: number } | null;
 
 export default function ArticleEditor({
@@ -33,11 +30,10 @@ export default function ArticleEditor({
 
       const q = new Quill(el, {
         theme: "snow",
-        placeholder:
-          "Örn: Giriş paragrafı yazın. Alt başlıklar (H2/H3), maddeli listeler ve bağlantılar ekleyebilirsiniz.",
+        placeholder: "İçeriği yazın. H1 başlık alanda; burada H2/H3 kullanın.",
         modules: {
           toolbar: [
-            [{ header: [1, 2, 3, false] }],
+            [{ header: [2, 3, false] }],
             ["bold", "italic", "underline", "strike"],
             [{ list: "ordered" }, { list: "bullet" }],
             ["link"],
@@ -45,17 +41,15 @@ export default function ArticleEditor({
           ],
           keyboard: {
             bindings: {
-              // Enter -> tek satır (textarea davranışı)
               handleEnter: {
                 key: 13,
                 handler(range: QuillRange) {
                   if (!range) return true;
                   q.insertText(range.index, "\n", "user");
                   q.setSelection(range.index + 1, 0, "user");
-                  return false; // default paragraf eklemeyi engelle
+                  return false;
                 },
               },
-              // Shift+Enter -> yine tek satır
               handleShiftEnter: {
                 key: 13,
                 shiftKey: true,

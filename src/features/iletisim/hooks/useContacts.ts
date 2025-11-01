@@ -12,8 +12,12 @@ export type Contact = {
   createdAt: string;
 };
 
-type RawContact = Contact & { _id?: string }; // ← _id opsiyonel ve tipli
+type RawContact = Contact & { _id?: string };
 type ListResponse = { items: RawContact[] };
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+const CONTACTS_URL = `${API_BASE}/api/iletisim`;
 
 async function fetcher(url: string): Promise<Contact[]> {
   const res = await fetch(url, { credentials: "include", cache: "no-store" });
@@ -21,7 +25,6 @@ async function fetcher(url: string): Promise<Contact[]> {
 
   const data = (await res.json()) as ListResponse;
 
-  // id garanti (id || _id || fallback)
   const normalized: Contact[] = data.items.map((item, idx) => {
     const fallback = `${item.name}-${item.createdAt}-${idx}`;
     return {
@@ -35,7 +38,7 @@ async function fetcher(url: string): Promise<Contact[]> {
 
 export function useContacts() {
   const { data, error, isLoading, mutate } = useSWR<Contact[]>(
-    "/api/iletisim",
+    CONTACTS_URL,
     fetcher
   );
 

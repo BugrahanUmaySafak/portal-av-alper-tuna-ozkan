@@ -15,6 +15,7 @@ export default function Header() {
     { href: "/iletisim", label: "İletişim" },
     { href: "/makalelerim", label: "Makalelerim" },
     { href: "/videolarim", label: "Videolarım" },
+    { href: "/kategoriler", label: "Kategoriler" },
   ];
 
   return (

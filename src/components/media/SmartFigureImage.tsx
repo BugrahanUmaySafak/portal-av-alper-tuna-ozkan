@@ -1,28 +1,23 @@
+// src/components/media/SmartFigureImage.tsx
 "use client";
 
 import Image from "next/image";
 import clsx from "clsx";
 
-function cld(url: string, params: string) {
-  try {
-    const u = new URL(url);
-    if (!u.hostname.includes("res.cloudinary.com")) return url;
-    const [prefix, rest] = u.pathname.split("/image/upload/");
-    if (!rest) return url;
-    const firstSeg = rest.split("/")[0];
-    const startsWithV = /^v\d+$/.test(firstSeg);
-    const finalPath = startsWithV
-      ? `${u.origin}${prefix}/image/upload/${params}/${rest}`
-      : `${u.origin}${prefix}/image/upload/${rest}`;
-    return finalPath;
-  } catch {
-    return url;
-  }
+function tinyFromCloudinary(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  const ok = /res\.cloudinary\.com\/.+\/image\/upload\//.test(url);
+  if (!ok) return undefined;
+  return url.replace(
+    /\/image\/upload\/(?![a-z])/,
+    "/image/upload/q_20,w_96,dpr_1,e_blur:300/"
+  );
 }
 
 type Props = {
-  src?: string | null;
-  alt?: string;
+  src: string;
+  tinySrc?: string;
+  alt: string;
   className?: string;
   withBottomGradient?: boolean;
   sizes?: string;
@@ -31,99 +26,52 @@ type Props = {
 
 export default function SmartFigureImage({
   src,
-  alt = "",
+  tinySrc,
+  alt,
   className,
   withBottomGradient = true,
   priority = false,
-  sizes = `(min-width: 1024px) calc(100vw - 8rem),
-           (min-width: 640px) calc(100vw - 3rem),
-           calc(100vw - 2rem)`,
+  sizes = "(min-width:1024px) 224px, (min-width:768px) 208px, (min-width:640px) 176px, 128px",
 }: Props) {
-  if (!src) {
-    return (
-      <div
-        className={clsx(
-          "relative overflow-hidden rounded-xl",
-          "w-full aspect-[16/9]",
-          "bg-muted/30 ring-1 ring-border/50",
-          className
-        )}
-        aria-label="Henüz görsel seçilmedi"
-      />
-    );
-  }
+  const derivedTiny = tinySrc || tinyFromCloudinary(src) || src;
+  const isBlob = derivedTiny.startsWith?.("blob:");
 
-  const isBlob = src.startsWith("blob:") || src.startsWith("data:");
-  const isCloudinary = (() => {
-    try {
-      return new URL(src).hostname.includes("res.cloudinary.com");
-    } catch {
-      return false;
-    }
-  })();
-
-  if (isCloudinary) {
-    const bg = cld(src, "f_auto,q_auto,c_fill,ar_16:9,e_blur:800");
-    const fg = cld(src, "f_auto,q_auto,c_fit,w_1600");
-    return (
-      <div className={clsx("relative overflow-hidden rounded-xl", className)}>
-        <Image
-          src={bg}
-          alt=""
-          aria-hidden
-          fill
-          sizes={sizes}
-          className="object-cover scale-105 will-change-transform"
-          decoding="async"
-          draggable={false}
-          priority={priority}
-        />
-        <Image
-          src={fg}
-          alt={alt}
-          fill
-          sizes={sizes}
-          className="object-contain object-center"
-          decoding="async"
-          draggable={false}
-          priority={priority}
-        />
-        {withBottomGradient && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background/40 to-transparent" />
-        )}
-      </div>
-    );
-  }
-
-  // Blob/Data veya Cloudinary dışı URL — CSS blur ile arka plan
   return (
-    <div className={clsx("relative overflow-hidden rounded-xl", className)}>
+    // 🔧 burada artık rounded YOK; radius sadece parent (Card) tarafından verilecek
+    <div className={clsx("relative overflow-hidden", className)}>
+      {/* Arka plan blur */}
       <Image
-        src={src}
+        key={`bg:${derivedTiny}`}
+        src={derivedTiny}
         alt=""
         aria-hidden
         fill
         sizes={sizes}
-        className="object-cover will-change-transform"
-        style={{ filter: "blur(20px)", transform: "scale(1.08)" }}
+        className="absolute inset-0 z-0 object-cover blur-[2px] scale-105 will-change-transform pointer-events-none"
+        placeholder={isBlob ? "empty" : undefined}
         decoding="async"
         draggable={false}
+        loading={priority ? undefined : "lazy"}
         priority={priority}
-        unoptimized={isBlob}
       />
+
+      {/* Ön plan */}
       <Image
+        key={`fg:${src}`}
         src={src}
         alt={alt}
         fill
         sizes={sizes}
-        className="object-contain object-center"
+        className="absolute inset-0 z-10 object-contain object-center pointer-events-none"
+        placeholder="empty"
         decoding="async"
         draggable={false}
+        loading={priority ? undefined : "lazy"}
         priority={priority}
-        unoptimized={isBlob}
       />
+
       {withBottomGradient && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background/40 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 z-20 bg-gradient-to-t from-background/40 to-transparent" />
       )}
     </div>
   );

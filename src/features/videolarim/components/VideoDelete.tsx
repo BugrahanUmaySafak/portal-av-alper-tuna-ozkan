@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { deleteVideo } from "../actions/deleteVideo";
+import { deleteVideo } from "@/features/videolarim/actions/deleteVideo";
 
 export default function VideoDelete({
   id,

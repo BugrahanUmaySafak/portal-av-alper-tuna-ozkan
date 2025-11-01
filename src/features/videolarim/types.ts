@@ -1,10 +1,17 @@
-// src/features/videolarim/types.ts (panel projesi)
+// src/modules/videos/types.ts
+
+export type VideoCategory = {
+  id: string;
+  name: string;
+};
+
 export type Video = {
   id: string;
   title: string;
   youtubeId: string;
   createdAt: string;
   updatedAt?: string;
-  coverUrl?: string; // 👈 Cloudinary'den
-  coverBlurDataUrl?: string; // 👈 base64 blur
+  coverUrl?: string;
+  coverPublicId?: string;
+  category?: VideoCategory;
 };

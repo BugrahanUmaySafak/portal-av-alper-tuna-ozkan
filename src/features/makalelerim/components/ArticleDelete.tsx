@@ -1,5 +1,5 @@
+// ArticleDelete.tsx
 "use client";
-
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -34,8 +34,8 @@ export default function ArticleDelete({
   return (
     <Button
       variant="destructive"
-      size="icon"
-      className="h-8 w-8 rounded-full shadow-md"
+      size="sm"
+      className="gap-1 rounded-full px-3 h-8 shadow-md"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -45,6 +45,7 @@ export default function ArticleDelete({
       title="Makaleyi sil"
     >
       <Trash2 className="h-4 w-4" />
+      <span>Sil</span>
     </Button>
   );
 }

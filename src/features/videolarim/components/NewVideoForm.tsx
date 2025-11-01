@@ -1,3 +1,4 @@
+// src/features/videolarim/components/NewVideoForm.tsx
 "use client";
 
 import { useMemo } from "react";
@@ -13,44 +14,55 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 import VideoCard from "@/features/videolarim/components/VideoCard";
-import { createVideo } from "../actions/createVideo";
+import { createVideo } from "@/features/videolarim/actions/createVideo";
+import { useCategories } from "@/features/kategoriler/hooks/useCategories";
 
 const youtubeIdRegex = /^[a-zA-Z0-9_-]{6,}$/;
 
 const schema = z.object({
   title: z.string().min(3, "Başlık en az 3 karakter olmalıdır"),
   youtubeId: z.string().regex(youtubeIdRegex, "Geçerli bir YouTube ID giriniz"),
+  categoryId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 export default function NewVideoForm() {
   const router = useRouter();
+  const { categories } = useCategories();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       title: "",
       youtubeId: "",
+      categoryId: "",
     },
     mode: "onChange",
   });
 
   const values = form.watch();
 
-  const preview = useMemo(
-    () => ({
+  const preview = useMemo(() => {
+    const selectedCat = categories.find((c) => c.id === values.categoryId);
+    return {
       id: "preview",
       title: values.title || "Video Başlığı",
       youtubeId: values.youtubeId || "",
       createdAt: new Date().toISOString(),
-    }),
-    [values.title, values.youtubeId]
-  );
+      category: selectedCat
+        ? { id: selectedCat.id, name: selectedCat.name }
+        : undefined,
+    };
+  }, [values.title, values.youtubeId, values.categoryId, categories]);
 
   async function onSubmit(data: FormValues) {
     try {
-      await createVideo(data);
+      await createVideo({
+        title: data.title,
+        youtubeId: data.youtubeId,
+        categoryId: data.categoryId || undefined,
+      });
       toast.success("Video oluşturuldu");
       router.replace("/videolarim");
     } catch (e) {
@@ -102,11 +114,24 @@ export default function NewVideoForm() {
                   {form.formState.errors.youtubeId.message}
                 </p>
               )}
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Sadece ID girin (tam URL değil). Örnek URL:{" "}
-                <code>https://youtube.com/watch?v=</code>
-                <b>uelHwf8o7_U</b>
-              </p>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="categoryId" className="text-sm font-medium">
+                Kategori
+              </Label>
+              <select
+                id="categoryId"
+                className="h-10 rounded-md border px-3 py-2 bg-background"
+                {...form.register("categoryId")}
+              >
+                <option value="">— Kategori seçin —</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="pt-1 flex items-center gap-3">
@@ -141,6 +166,7 @@ export default function NewVideoForm() {
           youtubeId={preview.youtubeId}
           createdAt={preview.createdAt}
           showDelete={false}
+          category={preview.category}
         />
       </div>
     </div>

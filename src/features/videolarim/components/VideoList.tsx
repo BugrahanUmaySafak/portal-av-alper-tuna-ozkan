@@ -5,9 +5,9 @@ import Container from "@/components/container/Container";
 import Section from "@/components/section/Section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import VideoCard from "./VideoCard";
-import { useVideos } from "../hooks/useVideos";
-import { Video } from "../types";
+import VideoCard from "@/features/videolarim/components/VideoCard";
+import { useVideos } from "@/features/videolarim/hooks/useVideos";
+import type { Video } from "@/features/videolarim/types";
 
 export default function VideoList() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function VideoList() {
         <Container>
           <Button
             onClick={() => router.push("/videolarim/new")}
-            className="text-base"
+            className="text-base mb-6"
           >
             Yeni Video Ekle
           </Button>
@@ -81,14 +81,12 @@ export default function VideoList() {
   return (
     <Section>
       <Container>
-        {/* Başlık + Buton */}
         <div className="flex items-center mb-6">
           <Button onClick={() => router.push("/videolarim/new")}>
             Yeni Video Ekle
           </Button>
         </div>
 
-        {/* Video grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {videos.map((v, i) => (
             <VideoCard

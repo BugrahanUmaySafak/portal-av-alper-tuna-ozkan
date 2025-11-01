@@ -11,17 +11,15 @@ const fetcher = (url: string) =>
   );
 
 export function useArticles(initialItems?: Article[]) {
-  const { data, error, isLoading, mutate } = useSWR<ListResponse>(
-    "/api/makalelerim",
-    fetcher,
-    { fallbackData: initialItems ? { items: initialItems } : undefined }
-  );
+  const swr = useSWR<ListResponse>("/api/makalelerim", fetcher, {
+    fallbackData: initialItems ? { items: initialItems } : undefined,
+  });
 
   return {
-    articles: data?.items ?? [],
-    isLoading,
-    isError: Boolean(error),
-    error,
-    mutate,
+    data: swr.data?.items ?? [],
+    isLoading: swr.isLoading,
+    isError: Boolean(swr.error),
+    error: swr.error,
+    mutate: swr.mutate,
   };
 }

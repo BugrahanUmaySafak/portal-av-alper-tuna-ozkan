@@ -1,22 +1,24 @@
 "use client";
 
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+
 type ErrorResponse = { message?: string };
-function isError(x: unknown): x is ErrorResponse {
-  return typeof x === "object" && x !== null && "message" in x;
-}
 
 export async function deleteVideo(id: string) {
-  const res = await fetch(`/api/videolarim/${id}`, {
+  const res = await fetch(`${API_BASE}/api/videolarim/${id}`, {
     method: "DELETE",
     credentials: "include",
   });
 
   if (res.status === 204) return { ok: true as const };
 
-  let msg = "Video silinemedi";
-  try {
-    const data: unknown = await res.json();
-    if (isError(data) && data.message) msg = data.message;
-  } catch {}
+  const json = (await res.json().catch(() => null)) as ErrorResponse | null;
+
+  const msg =
+    json?.message ||
+    (typeof json === "string" ? json : "") ||
+    "Video silinemedi";
+
   throw new Error(msg);
 }

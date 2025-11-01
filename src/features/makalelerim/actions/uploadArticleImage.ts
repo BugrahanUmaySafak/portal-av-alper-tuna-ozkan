@@ -1,11 +1,18 @@
 // src/features/makalelerim/actions/uploadArticleImage.ts
-type UploadJson = { image?: { url?: string } };
+"use client";
 
+// görsel upload (ID ile)
+type UploadJson = { image?: { url?: string; tinyUrl?: string } };
+
+/**
+ * Makale görselini tek başına (FormData) günceller.
+ * BE { image: { url, tinyUrl } } döner; ikisini de dışarı veririz.
+ */
 export async function uploadArticleImageWithId(
   file: File,
   slug: string,
   id: string
-): Promise<string> {
+): Promise<{ url: string; tinyUrl?: string }> {
   const fd = new FormData();
   fd.append("file", file);
   fd.append("data", JSON.stringify({ slug }));
@@ -17,9 +24,10 @@ export async function uploadArticleImageWithId(
   });
 
   if (!res.ok) {
-    throw new Error((await res.text().catch(() => "")) || "Görsel yüklenemedi");
+    const txt = await res.text().catch(() => "");
+    throw new Error(txt || "Görsel yüklenemedi");
   }
 
   const json: UploadJson = await res.json();
-  return json.image?.url ?? "";
+  return { url: json.image?.url ?? "", tinyUrl: json.image?.tinyUrl };
 }

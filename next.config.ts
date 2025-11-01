@@ -1,32 +1,27 @@
+// next.config.ts
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:4000/api/:path*",
+        destination: "http://localhost:4001/api/:path*",
       },
     ];
   },
   images: {
-    domains: ["res.cloudinary.com", "images.unsplash.com", "picsum.photos"],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "img.youtube.com",
-        pathname: "/vi/**", // YouTube video thumbnail path
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "picsum.photos",
-        pathname: "/**", // Eğer placeholder görselleri de kullanıyorsan
+        hostname: "img.youtube.com",
+        pathname: "/vi/**",
       },
     ],
-  },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: "5mb", // '2mb', '10mb' gibi arttırabilirsiniz
-    },
   },
 };
 

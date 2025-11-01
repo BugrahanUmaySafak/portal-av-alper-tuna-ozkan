@@ -18,8 +18,8 @@ import type { Video } from "@/features/videolarim/types";
 import type { Article } from "@/features/makalelerim/types";
 
 type Props = {
-  videos?: Video[]; // <- opsiyonel
-  articles?: Article[]; // <- opsiyonel
+  videos?: Video[];
+  articles?: Article[];
   videoTake?: number;
   articleTake?: number;
   title?: string;
@@ -50,18 +50,19 @@ export default function LatestInformative({
 }: Props) {
   // Props gelmezse hook'lardan çek
   const { videos: hvideos = [], isLoading: vLoading } = useVideos();
-  const { articles: harticles = [], isLoading: aLoading } = useArticles();
+  const { data: harticles = [], isLoading: aLoading } = useArticles(); // <-- düzeltme
 
-  const V = videos ?? hvideos;
-  const A = articles ?? harticles;
+  const V: Video[] = videos ?? hvideos;
+  const A: Article[] = articles ?? harticles;
 
   const loading =
     (videos === undefined && vLoading) || (articles === undefined && aLoading);
 
-  const latestVideo = V[0];
-  const listVideos = V.slice(1, Math.max(1, videoTake));
-  const latestArticle = A[0];
-  const listArticles = A.slice(1, Math.max(1, articleTake));
+  const latestVideo: Video | undefined = V[0];
+  const listVideos: Video[] = V.slice(1, Math.max(1, videoTake));
+
+  const latestArticle: Article | undefined = A[0];
+  const listArticles: Article[] = A.slice(1, Math.max(1, articleTake));
 
   if (loading) {
     return (
@@ -145,7 +146,7 @@ export default function LatestInformative({
             )}
 
             <div className="space-y-6">
-              {listVideos.map((video) => (
+              {listVideos.map((video: Video) => (
                 <div key={video.id} className="mb-4">
                   <Link href="/videolarim">
                     <Card className="group hover:shadow-xl transition-all duration-500 border-0 shadow-md bg-white/80 backdrop-blur-sm hover:bg-white cursor-pointer overflow-hidden">
@@ -221,6 +222,7 @@ export default function LatestInformative({
                       <div className="flex gap-4 md:gap-5">
                         <SmartFigureImage
                           src={latestArticle.image.url}
+                          tinySrc={latestArticle.image.tinyUrl}
                           alt={latestArticle.image.alt}
                           className="w-44 h-24 md:w-52 md:h-28 lg:w-56 lg:h-32 rounded-xl shadow-md bg-gray-900 flex-shrink-0"
                         />
@@ -243,7 +245,7 @@ export default function LatestInformative({
             )}
 
             <div className="space-y-6">
-              {listArticles.map((yazi) => (
+              {listArticles.map((yazi: Article) => (
                 <div key={yazi.id} className="mb-4">
                   <Link href="/makalelerim">
                     <Card className="group hover:shadow-xl transition-all duration-500 border-0 shadow-md bg-white/80 backdrop-blur-sm hover:bg-white cursor-pointer overflow-hidden">
@@ -251,6 +253,7 @@ export default function LatestInformative({
                         <div className="flex gap-4 md:gap-5">
                           <SmartFigureImage
                             src={yazi.image.url}
+                            tinySrc={yazi.image.tinyUrl}
                             alt={yazi.image.alt}
                             className="w-44 h-24 md:w-52 md:h-28 lg:w-56 lg:h-32 rounded-xl shadow-md bg-gray-900 flex-shrink-0"
                           />

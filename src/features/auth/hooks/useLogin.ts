@@ -1,8 +1,9 @@
+// src/features/auth/hooks/useLogin.ts
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "../actions/login";
+import { login } from "@/features/auth/actions/login";
 
 export function useLogin() {
   const [username, setU] = useState("");

@@ -1,6 +1,4 @@
-// src/features/makalelerim/components/EditableKeywords.tsx
 "use client";
-
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
@@ -26,8 +24,7 @@ export default function EditableKeywords({
     <div>
       <label className="text-sm font-medium">Anahtar Kelimeler</label>
       <p className="mt-1 text-xs text-muted-foreground">
-        Konuyu tanımlayan kısa kelimeler ekleyin. Her birini yazıp Enter’a
-        basın. 3–8 arası yeterlidir.
+        Her birini yazıp Enter’a basın. 3–8 arası yeterlidir.
       </p>
 
       <div className="mt-2 flex flex-wrap gap-2">

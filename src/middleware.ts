@@ -1,39 +1,50 @@
-// middleware.ts
+// src/middleware.ts
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(req: NextRequest) {
-  const { pathname, origin } = req.nextUrl;
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
 
-  // Bu dosya zaten sadece matcher'daki yollar için tetiklenecek,
-  // ama istersen güvene almak için yine de kontrol edebiliriz:
-  const protectedRoots = [
-    "/anasayfa",
-    "/iletisim",
-    "/makalelerim",
-    "/videolarim",
-  ];
-  if (!protectedRoots.some((p) => pathname.startsWith(p))) {
+const PROTECTED = [
+  "/anasayfa",
+  "/iletisim",
+  "/makalelerim",
+  "/videolarim",
+  "/kategoriler",
+];
+
+export async function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl;
+
+  if (!PROTECTED.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return NextResponse.next();
   }
 
-  // 1) Cookie var mı?
   const sid = req.cookies.get("sid")?.value;
   if (!sid) {
     const url = new URL("/", req.url);
-    url.searchParams.set("redirect", pathname);
+    url.searchParams.set("redirect", pathname + search);
     return NextResponse.redirect(url);
   }
 
-  // 2) Cookie var ama geçersiz olabilir → backend'e doğrulat
-  const res = await fetch(`${origin}/api/auth/me`, {
-    headers: { cookie: req.headers.get("cookie") ?? "" },
-    cache: "no-store",
-  });
+  try {
+    const apiRes = await fetch(`${API_BASE}/api/auth/me`, {
+      headers: {
+        cookie: req.headers.get("cookie") ?? "",
+      },
+      cache: "no-store",
+    });
 
-  if (res.status === 200) return NextResponse.next();
+    if (apiRes.status === 200) {
+      return NextResponse.next();
+    }
+  } catch {
+    const url = new URL("/", req.url);
+    url.searchParams.set("redirect", pathname + search);
+    return NextResponse.redirect(url);
+  }
 
   const url = new URL("/", req.url);
-  url.searchParams.set("redirect", pathname);
+  url.searchParams.set("redirect", pathname + search);
   return NextResponse.redirect(url);
 }
 
@@ -45,5 +56,6 @@ export const config = {
     "/makalelerim/:path*",
     "/videolarim",
     "/videolarim/:path*",
+    "/kategoriler",
   ],
 };

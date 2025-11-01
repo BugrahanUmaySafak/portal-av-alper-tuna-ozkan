@@ -9,7 +9,7 @@ export default function LatestContact() {
 
   if (isLoading) return <Skeleton className="h-28 w-full" />;
 
-  if (isError || !contacts.length) {
+  if (isError || !contacts?.length) {
     return (
       <div className="text-muted-foreground text-base">
         Henüz iletişim kaydı yok.
@@ -18,16 +18,12 @@ export default function LatestContact() {
   }
 
   const latest = contacts[0];
-
   return (
     <div className="space-y-3">
-      <div>
-        <h1 className="text-lg font-semibold text-foreground">
-          Son Gönderilen Mesaj
-        </h1>
-      </div>
+      <h1 className="text-lg font-semibold text-foreground">
+        Son Gönderilen Mesaj
+      </h1>
 
-      {/* Son iletişim kartı */}
       <ContactCard contact={latest} showDelete={false} navigateTo="/iletisim" />
     </div>
   );

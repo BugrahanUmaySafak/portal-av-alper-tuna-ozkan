@@ -1,3 +1,4 @@
+// src/features/videolarim/components/VideoEdit.tsx
 "use client";
 
 import { useMemo } from "react";
@@ -13,13 +14,15 @@ import { Button } from "@/components/ui/button";
 
 import VideoCard from "@/features/videolarim/components/VideoCard";
 import type { Video } from "@/features/videolarim/types";
-import { updateVideo } from "../actions/updateVideo";
+import { updateVideo } from "@/features/videolarim/actions/updateVideo";
+import { useCategories } from "@/features/kategoriler/hooks/useCategories";
 
 const youtubeIdRegex = /^[a-zA-Z0-9_-]{6,}$/;
 
 const schema = z.object({
   title: z.string().min(3, "Başlık en az 3 karakter olmalıdır"),
   youtubeId: z.string().regex(youtubeIdRegex, "Geçerli bir YouTube ID giriniz"),
+  categoryId: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -30,27 +33,52 @@ export default function VideoEdit({
   initial: Video;
   onUpdated?: () => void;
 }) {
+  const { categories } = useCategories();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: initial.title, youtubeId: initial.youtubeId },
+    defaultValues: {
+      title: initial.title,
+      youtubeId: initial.youtubeId,
+      categoryId: initial.category?.id ?? "",
+    },
     mode: "onChange",
   });
 
   const values = form.watch();
 
-  const preview = useMemo(
-    () => ({
+  const preview = useMemo(() => {
+    const selectedCat = categories.find((c) => c.id === values.categoryId);
+    return {
       id: initial.id,
       title: values.title,
       youtubeId: values.youtubeId,
       createdAt: initial.createdAt,
-    }),
-    [initial.id, initial.createdAt, values.title, values.youtubeId]
-  );
+      coverUrl: initial.coverUrl,
+      coverPublicId: initial.coverPublicId,
+      category: selectedCat
+        ? { id: selectedCat.id, name: selectedCat.name }
+        : initial.category,
+    } satisfies Video;
+  }, [
+    initial.id,
+    initial.createdAt,
+    initial.coverUrl,
+    initial.coverPublicId,
+    initial.category,
+    values.title,
+    values.youtubeId,
+    values.categoryId,
+    categories,
+  ]);
 
   async function onSubmit(data: FormValues) {
     try {
-      await updateVideo(initial.id, data);
+      await updateVideo(initial.id, {
+        title: data.title,
+        youtubeId: data.youtubeId,
+        categoryId: data.categoryId || undefined,
+      });
       toast.success("Video güncellendi");
       onUpdated?.();
     } catch (e) {
@@ -68,10 +96,12 @@ export default function VideoEdit({
           youtubeId={preview.youtubeId}
           createdAt={preview.createdAt}
           showDelete={false}
+          coverUrl={preview.coverUrl}
+          category={preview.category}
         />
       </div>
 
-      {/* Sağ: Form – içerik kadar, kompakt, VideoCard ile uyumlu */}
+      {/* Sağ: Form */}
       <Card className="w-full max-w-lg rounded-2xl border border-border/60 shadow-sm overflow-hidden">
         <CardHeader className="px-5 py-4 border-b">
           <CardTitle className="text-base sm:text-lg">
@@ -113,11 +143,24 @@ export default function VideoEdit({
                   {form.formState.errors.youtubeId.message}
                 </p>
               )}
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Sadece ID girin (tam URL değil). Örnek URL:{" "}
-                <code>https://youtube.com/watch?v=</code>
-                <b>uelHwf8o7_U</b>
-              </p>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="categoryId" className="text-sm font-medium">
+                Kategori
+              </Label>
+              <select
+                id="categoryId"
+                className="h-10 rounded-md border px-3 py-2 bg-background"
+                {...form.register("categoryId")}
+              >
+                <option value="">— Kategori seçin —</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="pt-1">
