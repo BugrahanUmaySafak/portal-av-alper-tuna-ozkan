@@ -1,26 +1,21 @@
+// src/features/iletisim/actions/deleteContact.ts
 "use client";
 
-type ErrorResponse = { message?: string };
+import { apiFetch } from "@/lib/api";
 
-function isErrorResponse(x: unknown): x is ErrorResponse {
-  return typeof x === "object" && x !== null && "message" in x;
-}
+type DeleteOk = { ok: true };
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
-
-export async function deleteContact(id: string) {
-  const res = await fetch(`${API_BASE}/api/iletisim/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
-
-  if (res.status === 204) return { ok: true as const };
-
-  let msg = "Kayıt silinemedi";
+export async function deleteContact(id: string): Promise<DeleteOk> {
+  // 204 bekliyoruz; apiFetch 204'te undefined döner.
   try {
-    const data: unknown = await res.json();
-    if (isErrorResponse(data) && data.message) msg = data.message;
-  } catch {}
-  throw new Error(msg);
+    await apiFetch<void>(`/api/iletisim/${id}`, { method: "DELETE" });
+    return { ok: true };
+  } catch (e: unknown) {
+    // Daha okunur hata
+    const msg =
+      e instanceof Error
+        ? e.message
+        : "Kayıt silinemedi. Lütfen tekrar deneyin.";
+    throw new Error(msg);
+  }
 }

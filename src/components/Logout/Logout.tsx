@@ -25,9 +25,13 @@ export default function Logout() {
                 method: "POST",
                 credentials: "include",
               });
+              if (!res.ok) {
+                const text = await res.text().catch(() => "");
+                toast.error(`Çıkış yapılamadı (${res.status}). ${text || ""}`);
+                return;
+              }
               if (res.ok) {
                 toast.success("Başarıyla çıkış yapıldı.");
-                // cookie geldiği origin'e ait, paneli yenile
                 window.location.replace("/");
               } else {
                 toast.error("Çıkış yapılamadı, tekrar deneyin.");

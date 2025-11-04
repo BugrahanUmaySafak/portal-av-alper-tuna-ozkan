@@ -1,25 +1,27 @@
 "use client";
 
 import useSWR from "swr";
+import { apiFetch } from "@/lib/api";
 import type { Article } from "../types";
 
 type ListResponse = { items: Article[] };
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include", cache: "no-store" }).then((r) =>
-    r.json()
+export function useArticles(initialItems?: Article[]) {
+  const { data, error, isLoading, mutate } = useSWR<ListResponse>(
+    // SWR key relative kalsın; fetcher absolute gider
+    `/api/makalelerim`,
+    () => apiFetch<ListResponse>(`/api/makalelerim`),
+    {
+      fallbackData: initialItems ? { items: initialItems } : undefined,
+      revalidateOnFocus: false,
+    }
   );
 
-export function useArticles(initialItems?: Article[]) {
-  const swr = useSWR<ListResponse>("/api/makalelerim", fetcher, {
-    fallbackData: initialItems ? { items: initialItems } : undefined,
-  });
-
   return {
-    data: swr.data?.items ?? [],
-    isLoading: swr.isLoading,
-    isError: Boolean(swr.error),
-    error: swr.error,
-    mutate: swr.mutate,
+    data: data?.items ?? [],
+    isLoading,
+    isError: Boolean(error),
+    error,
+    mutate,
   };
 }

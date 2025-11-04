@@ -1,27 +1,27 @@
-// src/features/kategoriler/hooks/useCategories.ts
 "use client";
 
 import useSWR from "swr";
 import type { Category } from "../types";
+import { apiFetch } from "@/lib/api";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
-const CATEGORIES_URL = `${API_BASE}/api/kategoriler`;
-
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include", cache: "no-store" }).then((r) => {
-    if (!r.ok) throw new Error("Kategoriler alınamadı");
-    return r.json();
-  });
+// SWR key'i path olsun; fetcher apiFetch çağırır
+async function fetchCategories() {
+  const data = await apiFetch<{ items: Category[] }>("/api/kategoriler");
+  return data.items ?? [];
+}
 
 export function useCategories() {
-  const { data, error, isLoading, mutate } = useSWR<{ items: Category[] }>(
-    CATEGORIES_URL,
-    fetcher
+  const { data, error, isLoading, mutate } = useSWR<Category[]>(
+    "/api/kategoriler",
+    () => fetchCategories(),
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: true,
+    }
   );
 
   return {
-    categories: data?.items ?? [],
+    categories: data ?? [],
     isLoading,
     isError: Boolean(error),
     error,

@@ -1,8 +1,7 @@
-// src/features/auth/hooks/useLogin.ts
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { login } from "@/features/auth/actions/login";
 
 export function useLogin() {
@@ -11,6 +10,7 @@ export function useLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setErr] = useState("");
   const router = useRouter();
+  const search = useSearchParams();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -18,7 +18,10 @@ export function useLogin() {
     setLoading(true);
     try {
       await login({ username, password });
-      router.replace("/anasayfa");
+      const redirectTo = search.get("redirect");
+      router.replace(
+        redirectTo && redirectTo.startsWith("/") ? redirectTo : "/anasayfa"
+      );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Giriş başarısız";
       setErr(message);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useCategories } from "../hooks/useCategories"; // 👈 burada düzeltme
+import { useCategories } from "../hooks/useCategories";
 import { createCategory } from "../actions/createCategory";
 import { updateCategory } from "../actions/updateCategory";
 import { deleteCategory } from "../actions/deleteCategory";

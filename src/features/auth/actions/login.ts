@@ -1,9 +1,7 @@
-// src/features/auth/actions/login.ts
 "use client";
 
 /**
  * Client tarafında login isteği atar.
- * API: http://localhost:4001/api/auth/login
  */
 export async function login(payload: { username: string; password: string }) {
   const API_BASE =
@@ -17,16 +15,21 @@ export async function login(payload: { username: string; password: string }) {
   });
 
   if (!res.ok) {
+    // JSON veya text dönse de güvenle oku
     let msg = "Giriş başarısız";
     try {
-      const data = await res.json();
-      if (data?.message === "invalid_credentials") {
-        msg = "Kullanıcı adı veya şifre hatalı";
-      } else if (data?.message) {
-        msg = data.message;
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        const data = await res.json();
+        if (data?.message === "invalid_credentials")
+          msg = "Kullanıcı adı veya şifre hatalı";
+        else if (data?.message) msg = data.message;
+      } else {
+        const text = await res.text();
+        if (text) msg = text;
       }
     } catch {
-      // no-op
+      /* no-op */
     }
     throw new Error(msg);
   }

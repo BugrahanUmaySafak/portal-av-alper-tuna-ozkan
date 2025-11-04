@@ -17,10 +17,13 @@ export async function getSession(): Promise<{ username: string } | null> {
 
   if (!res.ok) return null;
 
-  const data = (await res.json().catch(() => null)) as {
-    ok: true;
-    user: { username: string };
-  } | null;
-
-  return data?.user ?? null;
+  try {
+    const data = (await res.json()) as {
+      ok: true;
+      user: { username: string };
+    };
+    return data?.user ?? null;
+  } catch {
+    return null;
+  }
 }

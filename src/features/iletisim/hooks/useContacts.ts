@@ -1,6 +1,8 @@
+// src/features/iletisim/hooks/useContacts.ts
 "use client";
 
 import useSWR from "swr";
+import { apiFetch } from "@/lib/api";
 
 export type Contact = {
   id: string;
@@ -15,31 +17,27 @@ export type Contact = {
 type RawContact = Contact & { _id?: string };
 type ListResponse = { items: RawContact[] };
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
-const CONTACTS_URL = `${API_BASE}/api/iletisim`;
-
-async function fetcher(url: string): Promise<Contact[]> {
-  const res = await fetch(url, { credentials: "include", cache: "no-store" });
-  if (!res.ok) throw new Error("İletişim verileri alınamadı");
-
-  const data = (await res.json()) as ListResponse;
-
-  const normalized: Contact[] = data.items.map((item, idx) => {
+async function fetchContacts(): Promise<Contact[]> {
+  const data = await apiFetch<ListResponse>("/api/iletisim");
+  const items = data?.items ?? [];
+  return items.map((item, idx) => {
     const fallback = `${item.name}-${item.createdAt}-${idx}`;
     return {
       ...item,
       id: item.id ?? item._id ?? fallback,
     };
   });
-
-  return normalized;
 }
 
 export function useContacts() {
+  // Key'i sabit tut; fetcher fonksiyon çağrısız olsun (SWR önerisi)
   const { data, error, isLoading, mutate } = useSWR<Contact[]>(
-    CONTACTS_URL,
-    fetcher
+    "/api/iletisim",
+    () => fetchContacts(),
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: true,
+    }
   );
 
   return {

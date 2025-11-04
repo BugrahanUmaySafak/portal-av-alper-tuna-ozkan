@@ -1,3 +1,4 @@
+// src/app/makalelerim/[slug]/page.tsx
 import ArticleDetailInline from "@/features/makalelerim/containers/ArticleDetailInline";
 import { notFound } from "next/navigation";
 
@@ -7,23 +8,19 @@ const API_BASE =
 async function fetchArticle(slug: string) {
   const res = await fetch(`${API_BASE}/api/makalelerim/${slug}`, {
     cache: "no-store",
-    credentials: "include",
+    next: { revalidate: 0 },
   });
   if (!res.ok) return null;
   return res.json();
 }
 
-// 👇 burada params'i async olarak karşılıyoruz
 export default async function Page({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  // 👇 önce await et
   const { slug } = await params;
-
   const article = await fetchArticle(slug);
   if (!article) notFound();
-
   return <ArticleDetailInline initial={article} />;
 }
