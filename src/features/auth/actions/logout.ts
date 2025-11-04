@@ -11,6 +11,7 @@ export async function serverLogout() {
   await fetch(`${API_BASE}/api/auth/logout`, {
     method: "POST",
     cache: "no-store",
+    credentials: "include",
     headers: {
       cookie: cookieStore.toString(),
     },
