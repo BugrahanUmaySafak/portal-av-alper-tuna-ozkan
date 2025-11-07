@@ -31,10 +31,7 @@ export default function NewArticleInline() {
   const [content, setContent] = useState("");
   const [imageAlt, setImageAlt] = useState("");
   const [summary, setSummary] = useState("");
-
-  // ⬇️ artık name değil id
   const [categoryId, setCategoryId] = useState("");
-
   const [keywords, setKeywords] = useState<string[]>([]);
   const [readingMinutes, setReadingMinutes] = useState<number | "">("");
   const [file, setFile] = useState<File | undefined>(undefined);
@@ -82,10 +79,9 @@ export default function NewArticleInline() {
         title,
         slug,
         content,
-        image: { url: "", alt: imageAlt },
+        image: { url: "", alt: imageAlt }, // URL'i createArticle dolduracak
         keywords,
         summary,
-        // 👇 artık id gönderiyoruz
         categoryId: categoryId || undefined,
         readingMinutes:
           readingMinutes === "" ? undefined : Number(readingMinutes),
@@ -121,17 +117,16 @@ export default function NewArticleInline() {
             </Link>
           </div>
 
-          {/* ÖZET */}
           <div className="mb-4 grid gap-1">
             <label className="text-sm font-medium" htmlFor="summary">
-              Özet (SERP açıklaması olarak da kullanılır)
+              Özet (SERP açıklaması)
             </label>
             <textarea
               id="summary"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               rows={3}
-              placeholder="140–200 karakter arası, içeriğin özünü anlatan kısa bir özet."
+              placeholder="140–200 karakter"
               className="w-full rounded-md border px-3 py-2"
             />
             <div className="text-xs text-muted-foreground">
@@ -139,7 +134,6 @@ export default function NewArticleInline() {
             </div>
           </div>
 
-          {/* KATEGORİ — seçim */}
           <div className="mb-6 grid gap-2">
             <label className="text-sm font-medium">Kategori</label>
             <select
@@ -156,7 +150,6 @@ export default function NewArticleInline() {
             </select>
           </div>
 
-          {/* OKUMA SÜRESİ */}
           <div className="mb-6 grid gap-1 max-w-xs">
             <label className="text-sm font-medium" htmlFor="readingMinutes">
               Okuma Süresi (dakika)
@@ -180,24 +173,18 @@ export default function NewArticleInline() {
             </p>
           </div>
 
-          {/* İÇERİK */}
           <div className="mb-2 text-sm text-muted-foreground">
             İçeriği aşağıdan yazabilir veya yapıştırabilirsiniz. (Editörde H1
             yok.)
           </div>
           <ArticleEditor value={content} onChange={setContent} />
 
-          {/* KEYWORDS */}
           <div className="mt-6">
             <EditableKeywords keywords={keywords} onChange={setKeywords} />
           </div>
 
           <div className="mt-8 flex justify-end">
-            <Button
-              onClick={handleCreate}
-              disabled={!isDirty}
-              className="h-10 px-6"
-            >
+            <Button onClick={handleCreate} disabled={!isDirty} className="h-10 px-6">
               Kaydet
             </Button>
           </div>
