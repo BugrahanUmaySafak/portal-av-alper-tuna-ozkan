@@ -1,7 +1,6 @@
-"use server";
+"use client";
 
-import { cookies } from "next/headers";
-import { API_BASE } from "@/lib/api";
+import { API_BASE, apiFetch } from "@/lib/api";
 
 export type CreateArticlePayload = {
   title: string;
@@ -14,21 +13,43 @@ export type CreateArticlePayload = {
   readingMinutes?: number;
 };
 
-export async function createArticle(payload: CreateArticlePayload) {
-  const cookie = (await cookies()).toString();
+type CreatedArticle = { id: string } & Record<string, unknown>;
 
-  const res = await fetch(`${API_BASE}/api/makalelerim`, {
+/**
+ * Tek butonla aynı UX; arkada:
+ * 1) JSON ile makaleyi oluştur
+ * 2) Varsa dosyayı doğrudan API'ye PATCH et (FormData)
+ */
+export async function createArticle(
+  payload: CreateArticlePayload,
+  file?: File | null
+): Promise<CreatedArticle> {
+  // 1) JSON
+  const created = await apiFetch<CreatedArticle>("/api/makalelerim", {
     method: "POST",
-    headers: { "Content-Type": "application/json", cookie },
     body: JSON.stringify(payload),
-    cache: "no-store",
-    credentials: "include",
   });
 
-  if (!res.ok) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(txt || "Makale oluşturulamadı");
+  // 2) Görsel (varsa) — tarayıcıdan doğrudan API'ye
+  if (file) {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("data", JSON.stringify({ slug: payload.slug }));
+
+    const res = await fetch(`${API_BASE}/api/makalelerim/${created.id}`, {
+      method: "PATCH",
+      body: fd,
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      throw new Error(
+        txt || "Makale oluşturuldu fakat kapak görseli yüklenemedi."
+      );
+    }
   }
 
-  return res.json() as Promise<{ id: string } & Record<string, unknown>>;
+  return created;
 }
