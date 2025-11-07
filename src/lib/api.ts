@@ -15,10 +15,6 @@ function hasMessage(x: unknown): x is Required<ApiError> {
   );
 }
 
-/**
- * Relative ("/api/...") ya da absolute URL ile çalışır; credentials: 'include' sabit.
- * FormData body gönderiliyorsa Content-Type eklenmez (boundary için).
- */
 export async function apiFetch<T = unknown>(
   url: string,
   init?: RequestInit & { parseJson?: boolean }

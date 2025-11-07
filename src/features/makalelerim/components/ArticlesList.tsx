@@ -41,7 +41,6 @@ export default function ArticlesList({
 
   const isError = Boolean(error);
 
-  // 1) LOADING — videolardakiyle aynı düzen
   if (isLoading) {
     return (
       <Section>

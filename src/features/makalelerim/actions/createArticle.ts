@@ -14,41 +14,21 @@ export type CreateArticlePayload = {
   readingMinutes?: number;
 };
 
-export async function createArticle(
-  payload: CreateArticlePayload,
-  file?: File
-) {
+export async function createArticle(payload: CreateArticlePayload) {
   const cookie = (await cookies()).toString();
-
-  if (file) {
-    const form = new FormData();
-    form.append("data", JSON.stringify(payload));
-    form.append("file", file);
-
-    const res = await fetch(`${API_BASE}/api/makalelerim`, {
-      method: "POST",
-      body: form,
-      cache: "no-store",
-      credentials: "include",
-      headers: { cookie }, // 🔑 auth forward
-    });
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "");
-      throw new Error(txt || "Makale oluşturulamadı");
-    }
-    return res.json();
-  }
 
   const res = await fetch(`${API_BASE}/api/makalelerim`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", cookie }, // 🔑
+    headers: { "Content-Type": "application/json", cookie },
     body: JSON.stringify(payload),
     cache: "no-store",
     credentials: "include",
   });
+
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
     throw new Error(txt || "Makale oluşturulamadı");
   }
-  return res.json();
+
+  return res.json() as Promise<{ id: string } & Record<string, unknown>>;
 }
