@@ -27,7 +27,8 @@ type Props = {
   lowerContent?: string | null;
 };
 
-function formatTR(iso: string) {
+function formatTR(iso?: string) {
+  if (!iso) return "Tarih yok";
   try {
     return new Date(iso).toLocaleDateString("tr-TR", {
       year: "numeric",
