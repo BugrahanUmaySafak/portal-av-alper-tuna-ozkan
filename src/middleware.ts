@@ -28,7 +28,7 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    const apiRes = await fetch(`${API_BASE}/auth/me`, {
+    const apiRes = await fetch(`${API_BASE}/api/auth/me`, {
       headers: {
         cookie: req.headers.get("cookie") ?? "",
       },
