@@ -1,18 +1,46 @@
 "use client";
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://api.alpertunaozkan.com/api";
 
-type ApiError = { message?: string };
+type ErrorBagValue = { _errors?: Array<string | { message?: string }> };
+type ApiError = { message?: string; errors?: Record<string, ErrorBagValue> };
 
-function hasMessage(x: unknown): x is Required<ApiError> {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function hasMessage(x: unknown): x is Required<Pick<ApiError, "message">> {
+  return isRecord(x) && typeof x.message === "string" && x.message.trim() !== "";
+}
+
+function hasErrors(x: unknown): x is Required<Pick<ApiError, "errors">> {
   return (
-    typeof x === "object" &&
-    x !== null &&
-    "message" in (x as Record<string, unknown>) &&
-    typeof (x as Record<string, unknown>).message === "string" &&
-    (x as Record<string, unknown>).message !== ""
+    isRecord(x) &&
+    "errors" in x &&
+    isRecord(x.errors) &&
+    Object.keys(x.errors).length > 0
   );
+}
+
+function formatErrorBag(bag: Record<string, ErrorBagValue | undefined>) {
+  const parts: string[] = [];
+  for (const [field, entry] of Object.entries(bag)) {
+    if (!entry || !Array.isArray(entry._errors) || !entry._errors.length)
+      continue;
+    const first = entry._errors[0];
+    const message =
+      typeof first === "string"
+        ? first
+        : isRecord(first) && typeof first.message === "string"
+          ? first.message
+          : null;
+    if (message) {
+      parts.push(`${field}: ${message}`);
+    }
+  }
+  return parts.join(" • ");
 }
 
 type ApiInit = RequestInit & { parseJson?: boolean };
@@ -59,7 +87,10 @@ export async function apiFetch<T = unknown>(
   if (!res.ok) {
     let msg = "İstek başarısız";
     if (hasMessage(body)) msg = body.message;
-    else if (typeof body === "string" && body) msg = body;
+    else if (hasErrors(body)) {
+      const friendly = formatErrorBag(body.errors);
+      if (friendly) msg = friendly;
+    } else if (typeof body === "string" && body) msg = body;
     throw new Error(msg);
   }
 

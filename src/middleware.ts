@@ -2,7 +2,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://api.alpertunaozkan.com/api";
 
 const PROTECTED = [
   "/anasayfa",
@@ -27,7 +28,7 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    const apiRes = await fetch(`${API_BASE}/api/auth/me`, {
+    const apiRes = await fetch(`${API_BASE}/auth/me`, {
       headers: {
         cookie: req.headers.get("cookie") ?? "",
       },

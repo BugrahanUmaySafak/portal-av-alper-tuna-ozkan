@@ -8,7 +8,7 @@ type DeleteOk = { ok: true };
 export async function deleteContact(id: string): Promise<DeleteOk> {
   // 204 bekliyoruz; apiFetch 204'te undefined döner.
   try {
-    await apiFetch<void>(`/api/iletisim/${id}`, { method: "DELETE" });
+    await apiFetch<void>(`/iletisim/${id}`, { method: "DELETE" });
     return { ok: true };
   } catch (e: unknown) {
     // Daha okunur hata

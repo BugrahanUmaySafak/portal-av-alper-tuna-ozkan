@@ -5,9 +5,10 @@
  */
 export async function login(payload: { username: string; password: string }) {
   const API_BASE =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "https://api.alpertunaozkan.com/api";
 
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
+  const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },

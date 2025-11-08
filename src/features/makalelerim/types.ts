@@ -1,10 +1,12 @@
 import type { Category } from "@/features/kategoriler/types";
 
+export type CategoryRef = Pick<Category, "id" | "name">;
+
 export type ArticleImage = {
   url: string;
   alt: string;
-  publicId: string;
   tinyUrl?: string;
+  publicId?: string;
 };
 
 export type Article = {
@@ -15,14 +17,15 @@ export type Article = {
   image: ArticleImage;
   summary?: string;
 
-  // API zaten populate ettiği için obje olarak da gelebilir
-  category?: Category;
-
-  // ama panel tarafı özellikle formda ID ile çalışıyor
+  category?: CategoryRef;
   categoryId?: string;
 
   keywords: string[];
   createdAt: string; // ISO
   updatedAt?: string; // ISO
   readingMinutes?: number;
+};
+
+export type ArticleList = {
+  items: Article[];
 };

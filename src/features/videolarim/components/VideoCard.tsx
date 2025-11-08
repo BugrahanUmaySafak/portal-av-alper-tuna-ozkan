@@ -22,7 +22,8 @@ type Props = Video & {
   onDeleted?: () => void;
 };
 
-function formatTR(iso: string) {
+function formatTR(iso?: string) {
+  if (!iso) return "Tarih yok";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("tr-TR", {
@@ -44,6 +45,7 @@ export default function VideoCard({
   category,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const categoryLabel = category?.name ?? "—";
 
   const YT = useMemo(
     () => ({
@@ -154,11 +156,9 @@ export default function VideoCard({
           <CardTitle className="text-lg sm:text-xl truncate" title={title}>
             {title}
           </CardTitle>
-          {category?.name ? (
-            <Badge variant="category" className="w-fit">
-              {category.name}
-            </Badge>
-          ) : null}
+          <Badge variant="category" className="w-fit">
+            {categoryLabel}
+          </Badge>
         </CardHeader>
 
         <CardContent className="px-4 pb-4 space-y-3">

@@ -8,7 +8,7 @@ export async function createVideo(payload: {
   youtubeId: string;
   categoryId?: string;
 }): Promise<Video> {
-  return apiFetch<Video>("/api/videolarim", {
+  return apiFetch<Video>("/videolarim", {
     method: "POST",
     body: JSON.stringify(payload),
   });

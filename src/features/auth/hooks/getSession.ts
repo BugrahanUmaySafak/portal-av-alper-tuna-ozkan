@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://api.alpertunaozkan.com/api";
 
 /**
  * SSR'da oturum kontrolü: backend /api/auth/me
@@ -10,7 +11,7 @@ export async function getSession(): Promise<{ username: string } | null> {
   const h = await headers();
   const cookie = h.get("cookie") ?? "";
 
-  const res = await fetch(`${API_BASE}/api/auth/me`, {
+  const res = await fetch(`${API_BASE}/auth/me`, {
     cache: "no-store",
     credentials: "include",
     headers: { cookie },

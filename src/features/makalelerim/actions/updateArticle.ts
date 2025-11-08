@@ -12,7 +12,7 @@ export async function updateArticle(id: string, patch: Partial<Article>) {
     ...patch,
     categoryId: patch.categoryId,
   };
-  return apiFetch(`/api/makalelerim/${id}`, {
+  return apiFetch(`/makalelerim/${id}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });

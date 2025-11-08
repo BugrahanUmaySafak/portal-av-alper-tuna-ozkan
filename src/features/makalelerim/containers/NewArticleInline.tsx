@@ -16,15 +16,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useCategories } from "@/features/kategoriler/hooks/useCategories";
 import type { UploadedImage } from "../actions/uploadArticleImage";
 
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
-
 export default function NewArticleInline() {
   const router = useRouter();
 
@@ -65,9 +56,8 @@ export default function NewArticleInline() {
     const ok = window.confirm("Yeni makaleyi oluşturmayı onaylıyor musunuz?");
     if (!ok) return;
 
-    const slug = slugify(title);
-    if (!slug) {
-      toast.error("Geçerli bir başlık girin (slug üretilemedi).");
+    if (!title.trim()) {
+      toast.error("Makale başlığı gereklidir.");
       return;
     }
     if (!imageData) {
@@ -77,8 +67,7 @@ export default function NewArticleInline() {
 
     try {
       const payload: CreateArticlePayload = {
-        title,
-        slug,
+        title: title.trim(),
         content,
         image: {
           url: imageData.url,

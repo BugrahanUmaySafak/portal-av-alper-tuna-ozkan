@@ -9,6 +9,7 @@ type SignatureResponse = {
   cloudName: string;
   folder?: string;
   uploadPreset?: string;
+  publicId?: string;
 };
 
 type CloudinaryUploadResponse = {
@@ -30,13 +31,10 @@ export async function uploadArticleImage(
   file: File,
   opts?: UploadOptions
 ): Promise<UploadedImage> {
-  const signature = await apiFetch<SignatureResponse>(
-    "/api/uploads/signature",
-    {
-      method: "POST",
-      body: JSON.stringify({ target: "article" }),
-    }
-  );
+  const signature = await apiFetch<SignatureResponse>(`/uploads/signature`, {
+    method: "POST",
+    body: JSON.stringify({ target: "article" }),
+  });
 
   const uploadUrl = `https://api.cloudinary.com/v1_1/${signature.cloudName}/auto/upload`;
   const fd = new FormData();
@@ -44,6 +42,7 @@ export async function uploadArticleImage(
   fd.append("api_key", signature.apiKey);
   fd.append("timestamp", String(signature.timestamp));
   fd.append("signature", signature.signature);
+  if (signature.publicId) fd.append("public_id", signature.publicId);
   if (signature.folder) fd.append("folder", signature.folder);
   if (signature.uploadPreset) fd.append("upload_preset", signature.uploadPreset);
 

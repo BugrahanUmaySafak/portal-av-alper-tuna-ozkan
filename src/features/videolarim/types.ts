@@ -1,17 +1,18 @@
-// src/modules/videos/types.ts
+import type { Category } from "@/features/kategoriler/types";
 
-export type VideoCategory = {
-  id: string;
-  name: string;
-};
+export type CategoryRef = Pick<Category, "id" | "name">;
 
 export type Video = {
   id: string;
   title: string;
   youtubeId: string;
-  createdAt: string;
+  category?: CategoryRef;
+  createdAt?: string;
   updatedAt?: string;
   coverUrl?: string;
   coverPublicId?: string;
-  category?: VideoCategory;
+};
+
+export type VideoList = {
+  items: Video[];
 };

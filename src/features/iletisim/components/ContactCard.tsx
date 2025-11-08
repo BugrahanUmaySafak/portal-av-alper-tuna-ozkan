@@ -19,7 +19,9 @@ export default function ContactCard({
   navigateTo?: string;
 }) {
   const r = useRouter();
-  const createdStr = new Date(contact.createdAt).toLocaleString("tr-TR");
+  const createdStr = contact.createdAt
+    ? new Date(contact.createdAt).toLocaleString("tr-TR")
+    : "Tarih yok";
 
   const handleNavigate = () => navigateTo && r.push(navigateTo);
   const stop = (e: React.MouseEvent) => e.stopPropagation();

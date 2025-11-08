@@ -11,28 +11,20 @@ export type Contact = {
   phone?: string | null;
   title: string;
   content: string;
-  createdAt: string;
+  createdAt?: string;
 };
 
-type RawContact = Contact & { _id?: string };
-type ListResponse = { items: RawContact[] };
+type ContactList = { items: Contact[] };
 
 async function fetchContacts(): Promise<Contact[]> {
-  const data = await apiFetch<ListResponse>("/api/iletisim");
-  const items = data?.items ?? [];
-  return items.map((item, idx) => {
-    const fallback = `${item.name}-${item.createdAt}-${idx}`;
-    return {
-      ...item,
-      id: item.id ?? item._id ?? fallback,
-    };
-  });
+  const data = await apiFetch<ContactList>("/iletisim");
+  return data?.items ?? [];
 }
 
 export function useContacts() {
   // Key'i sabit tut; fetcher fonksiyon çağrısız olsun (SWR önerisi)
   const { data, error, isLoading, mutate } = useSWR<Contact[]>(
-    "/api/iletisim",
+    "/iletisim",
     () => fetchContacts(),
     {
       revalidateOnFocus: false,

@@ -6,7 +6,6 @@ import type { ArticleImage } from "../types";
 
 export type CreateArticlePayload = {
   title: string;
-  slug: string;
   content: string;
   image: ArticleImage;
   keywords?: string[];
@@ -16,7 +15,7 @@ export type CreateArticlePayload = {
 };
 
 export async function createArticle(payload: CreateArticlePayload) {
-  return apiFetch(`/api/makalelerim`, {
+  return apiFetch(`/makalelerim`, {
     method: "POST",
     body: JSON.stringify(payload),
   });

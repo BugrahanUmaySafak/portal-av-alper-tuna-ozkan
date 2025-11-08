@@ -2,15 +2,13 @@
 
 import useSWR from "swr";
 import { apiFetch } from "@/lib/api";
-import type { Article } from "../types";
-
-type ListResponse = { items: Article[] };
+import type { Article, ArticleList } from "../types";
 
 export function useArticles(initialItems?: Article[]) {
-  const { data, error, isLoading, mutate } = useSWR<ListResponse>(
+  const { data, error, isLoading, mutate } = useSWR<ArticleList>(
     // SWR key relative kalsın; fetcher absolute gider
-    `/api/makalelerim`,
-    () => apiFetch<ListResponse>(`/api/makalelerim`),
+    `/makalelerim`,
+    () => apiFetch<ArticleList>(`/makalelerim`),
     {
       fallbackData: initialItems ? { items: initialItems } : undefined,
       revalidateOnFocus: false,

@@ -154,6 +154,9 @@ export default function ArticlesList({
                       <CalendarDays className="h-4 w-4" />
                       {formatTR(a.createdAt ?? a.updatedAt)}
                     </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      Kategori: {a.category?.name ?? "—"}
+                    </span>
                   </div>
                 </CardHeader>
 

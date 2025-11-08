@@ -1,18 +1,18 @@
 "use client";
 
 import useSWR from "swr";
-import type { Video } from "../types";
+import type { Video, VideoList } from "../types";
 import { apiFetch } from "@/lib/api";
 
 async function fetchMany() {
   // API {items:[...]} döndürüyor
-  const res = await apiFetch<{ items: Video[] }>(`/api/videolarim`);
+  const res = await apiFetch<VideoList>(`/videolarim`);
   return res.items ?? [];
 }
 
 export function useVideos() {
   const { data, error, isLoading, mutate } = useSWR<Video[]>(
-    `/api/videolarim`,
+    `/videolarim`,
     () => fetchMany(),
     { revalidateOnFocus: false }
   );

@@ -7,7 +7,7 @@ export async function updateVideo(
   id: string,
   payload: { title?: string; youtubeId?: string; categoryId?: string }
 ): Promise<Video> {
-  return apiFetch<Video>(`/api/videolarim/${id}`, {
+  return apiFetch<Video>(`/videolarim/${id}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
