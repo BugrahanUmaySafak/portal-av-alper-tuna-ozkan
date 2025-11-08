@@ -1,32 +1,32 @@
 // src/features/makalelerim/components/ArticleHero.tsx
 "use client";
 
+import Container from "@/components/container/Container";
 import SmartFigureImage from "@/components/media/SmartFigureImage";
 import { Button } from "@/components/ui/button";
-import { ImagePlus } from "lucide-react";
-import { uploadArticleImageWithId } from "../actions/uploadArticleImage";
+import { ImagePlus, Loader2 } from "lucide-react";
 import { useRef, useState } from "react";
-import Container from "@/components/container/Container";
+import { toast } from "sonner";
+import { uploadArticleImage } from "../actions/uploadArticleImage";
+import type { UploadedImage } from "../actions/uploadArticleImage";
+import type { ArticleImage } from "../types";
 
 export default function ArticleHero({
-  id,
   image,
   title,
-  slug,
   onChangeTitleLocal,
   onChangeAltLocal,
   onUploadedImmediate,
 }: {
-  id: string;
-  image: { url: string; tinyUrl?: string; alt: string };
+  image: ArticleImage;
   title: string;
-  slug: string;
   onChangeTitleLocal: (v: string) => void;
   onChangeAltLocal: (v: string) => void;
-  onUploadedImmediate: (v: { url: string; tinyUrl?: string }) => void;
+  onUploadedImmediate: (v: UploadedImage) => void;
 }) {
-  // local preview varken paylaşımla aynı blur’u SmartFigureImage yapıyor (blur-[2px], scale-105)
   const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -34,11 +34,24 @@ export default function ArticleHero({
     if (!file) return;
     const preview = URL.createObjectURL(file);
     setLocalPreview(preview);
+    setIsUploading(true);
+    setProgress(0);
+
     try {
-      const { url, tinyUrl } = await uploadArticleImageWithId(file, slug, id);
-      onUploadedImmediate({ url, tinyUrl }); // hem url hem tinyUrl güncellensin
+      const uploaded = await uploadArticleImage(file, {
+        onProgress: setProgress,
+      });
+      onUploadedImmediate(uploaded);
+      setLocalPreview(null);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Görsel yüklenemedi";
+      toast.error(message);
+      setLocalPreview(null);
     } finally {
       if (fileRef.current) fileRef.current.value = "";
+      setIsUploading(false);
+      setProgress(null);
       setTimeout(() => URL.revokeObjectURL(preview), 5000);
     }
   }
@@ -73,7 +86,6 @@ export default function ArticleHero({
           priority
         />
 
-        {/* Kalıcı gizli input */}
         <input
           ref={fileRef}
           type="file"
@@ -82,14 +94,23 @@ export default function ArticleHero({
           onChange={handleFileChange}
         />
 
-        {/* Tetikleyen buton */}
         <div className="absolute right-4 top-4 z-30">
           <Button
             type="button"
             onClick={() => fileRef.current?.click()}
             className="gap-2"
+            disabled={isUploading}
           >
-            <ImagePlus className="h-4 w-4" /> Görseli Değiştir
+            {isUploading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {progress !== null ? `%${progress}` : "Yükleniyor"}
+              </>
+            ) : (
+              <>
+                <ImagePlus className="h-4 w-4" /> Görseli Değiştir
+              </>
+            )}
           </Button>
         </div>
       </div>

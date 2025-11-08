@@ -1,34 +1,23 @@
 // src/features/makalelerim/actions/createArticle.ts
 "use client";
 
-import { API_BASE } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
+import type { ArticleImage } from "../types";
 
 export type CreateArticlePayload = {
   title: string;
   slug: string;
   content: string;
-  image: { url?: string; alt: string };
+  image: ArticleImage;
   keywords?: string[];
   summary?: string;
   categoryId?: string;
   readingMinutes?: number;
 };
 
-export async function createArticle(payload: CreateArticlePayload, file: File) {
-  const form = new FormData();
-  form.append("data", JSON.stringify(payload));
-  form.append("file", file);
-
-  const res = await fetch(`${API_BASE}/api/makalelerim`, {
+export async function createArticle(payload: CreateArticlePayload) {
+  return apiFetch(`/api/makalelerim`, {
     method: "POST",
-    body: form, // Content-Type KENDİSİ ayarlansın
-    credentials: "include", // sid çerezi gönderilsin
-    cache: "no-store",
+    body: JSON.stringify(payload),
   });
-
-  if (!res.ok) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(txt || "Makale oluşturulamadı");
-  }
-  return res.json();
 }

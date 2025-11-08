@@ -5,7 +5,7 @@ import Section from "@/components/section/Section";
 import { ArrowLeft, CalendarDays, Pencil, Timer } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import type { Article } from "../types";
+import type { Article, ArticleImage } from "../types";
 import { updateArticle } from "../actions/updateArticle";
 import { toast } from "sonner";
 import ArticleHero from "../components/ArticleHero";
@@ -33,8 +33,7 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
 
   const [title, setTitle] = useState(initial.title);
   const [content, setContent] = useState(initial.content);
-  const [imageUrl, setImageUrl] = useState(initial.image.url);
-  const [imageAlt, setImageAlt] = useState(initial.image.alt);
+  const [image, setImage] = useState<ArticleImage>(initial.image);
   const [summary, setSummary] = useState(initial.summary || "");
 
   // 🔑 sadece id tutuyoruz
@@ -51,8 +50,10 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
     return (
       title !== initial.title ||
       content !== initial.content ||
-      imageUrl !== initial.image.url ||
-      imageAlt !== initial.image.alt ||
+      image.url !== initial.image.url ||
+      image.alt !== initial.image.alt ||
+      image.tinyUrl !== initial.image.tinyUrl ||
+      image.publicId !== initial.image.publicId ||
       summary !== (initial.summary || "") ||
       // kategori
       categoryId !== (initial.category?.id ?? "") ||
@@ -64,8 +65,7 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
   }, [
     title,
     content,
-    imageUrl,
-    imageAlt,
+    image,
     summary,
     categoryId,
     keywords,
@@ -91,7 +91,7 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
       await updateArticle(initial.id, {
         title,
         content,
-        image: { url: imageUrl, alt: imageAlt },
+        image,
         summary,
         // 👇 artık name değil, id gönderiyoruz
         categoryId: categoryId || undefined,
@@ -109,15 +109,20 @@ export default function ArticleDetailInline({ initial }: { initial: Article }) {
   return (
     <>
       <ArticleHero
-        id={initial.id}
-        image={{ url: imageUrl, tinyUrl: initial.image.tinyUrl, alt: imageAlt }}
+        image={image}
         title={title}
-        slug={initial.slug}
         onChangeTitleLocal={setTitle}
-        onChangeAltLocal={setImageAlt}
-        onUploadedImmediate={(img) => {
-          setImageUrl(img.url);
-        }}
+        onChangeAltLocal={(value) =>
+          setImage((prev) => ({ ...prev, alt: value }))
+        }
+        onUploadedImmediate={(uploaded) =>
+          setImage((prev) => ({
+            ...prev,
+            url: uploaded.url,
+            tinyUrl: uploaded.tinyUrl ?? prev.tinyUrl,
+            publicId: uploaded.publicId,
+          }))
+        }
       />
 
       <Section>

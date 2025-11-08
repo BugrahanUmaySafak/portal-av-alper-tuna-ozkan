@@ -15,9 +15,11 @@ function hasMessage(x: unknown): x is Required<ApiError> {
   );
 }
 
+type ApiInit = RequestInit & { parseJson?: boolean };
+
 export async function apiFetch<T = unknown>(
   url: string,
-  init?: RequestInit & { parseJson?: boolean }
+  init?: ApiInit
 ): Promise<T> {
   const isAbs = /^https?:\/\//i.test(url);
   const target = isAbs ? url : `${API_BASE}${url}`;
@@ -25,13 +27,17 @@ export async function apiFetch<T = unknown>(
   const isFD =
     typeof FormData !== "undefined" && init?.body instanceof FormData;
 
+  const { parseJson, headers: initHeaders, cache, ...restInit } = init ?? {};
+
+  const headers = isFD
+    ? { ...(initHeaders || {}) }
+    : { "Content-Type": "application/json", ...(initHeaders || {}) };
+
   const res = await fetch(target, {
+    ...restInit,
+    headers,
     credentials: "include",
-    headers: isFD
-      ? { ...(init?.headers || {}) }
-      : { "Content-Type": "application/json", ...(init?.headers || {}) },
-    cache: "no-store",
-    ...init,
+    cache: cache ?? "no-store",
   });
 
   if (res.status === 204) {
@@ -39,7 +45,7 @@ export async function apiFetch<T = unknown>(
     return undefined as T;
   }
 
-  const parse = init?.parseJson !== false;
+  const parse = parseJson !== false;
 
   let body: unknown = null;
   if (parse) {

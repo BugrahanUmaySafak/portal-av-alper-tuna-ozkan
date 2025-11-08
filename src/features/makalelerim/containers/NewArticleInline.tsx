@@ -14,6 +14,7 @@ import type { CreateArticlePayload } from "../actions/createArticle";
 import { createArticle } from "../actions/createArticle";
 import { useEffect, useMemo, useState } from "react";
 import { useCategories } from "@/features/kategoriler/hooks/useCategories";
+import type { UploadedImage } from "../actions/uploadArticleImage";
 
 function slugify(s: string) {
   return s
@@ -34,7 +35,7 @@ export default function NewArticleInline() {
   const [categoryId, setCategoryId] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [readingMinutes, setReadingMinutes] = useState<number | "">("");
-  const [file, setFile] = useState<File | undefined>(undefined);
+  const [imageData, setImageData] = useState<UploadedImage | null>(null);
 
   const { categories } = useCategories();
 
@@ -69,8 +70,8 @@ export default function NewArticleInline() {
       toast.error("Geçerli bir başlık girin (slug üretilemedi).");
       return;
     }
-    if (!file) {
-      toast.error("Kapak görseli seçmelisiniz.");
+    if (!imageData) {
+      toast.error("Kapak görselini yüklemelisiniz.");
       return;
     }
 
@@ -79,7 +80,12 @@ export default function NewArticleInline() {
         title,
         slug,
         content,
-        image: { url: "", alt: imageAlt }, // URL'i createArticle dolduracak
+        image: {
+          url: imageData.url,
+          tinyUrl: imageData.tinyUrl,
+          publicId: imageData.publicId,
+          alt: imageAlt,
+        },
         keywords,
         summary,
         categoryId: categoryId || undefined,
@@ -87,7 +93,7 @@ export default function NewArticleInline() {
           readingMinutes === "" ? undefined : Number(readingMinutes),
       };
 
-      await createArticle(payload, file);
+      await createArticle(payload);
       toast.success("Makale oluşturuldu");
       router.push("/makalelerim");
     } catch (e) {
@@ -98,11 +104,11 @@ export default function NewArticleInline() {
   return (
     <>
       <ArticleHeroNew
-        image={{ url: undefined, alt: imageAlt }}
+        image={{ url: imageData?.url, tinyUrl: imageData?.tinyUrl, alt: imageAlt }}
         title={title}
         onChangeTitleLocal={setTitle}
         onChangeAltLocal={setImageAlt}
-        onPickFile={(f) => setFile(f)}
+        onImageUploaded={(img) => setImageData(img)}
       />
 
       <Section>

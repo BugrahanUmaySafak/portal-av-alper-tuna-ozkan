@@ -12,6 +12,7 @@ export async function getSession(): Promise<{ username: string } | null> {
 
   const res = await fetch(`${API_BASE}/api/auth/me`, {
     cache: "no-store",
+    credentials: "include",
     headers: { cookie },
   });
 
