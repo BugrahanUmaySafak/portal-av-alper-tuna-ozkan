@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://api.alpertunaozkan.com/api";
+  "https://api.alpertunaozkan.com";
 
 const PROTECTED = [
   "/anasayfa",

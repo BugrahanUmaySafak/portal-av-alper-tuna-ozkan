@@ -7,7 +7,7 @@ import { useEffect, useState, useTransition } from "react";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://api.alpertunaozkan.com/api";
+  "https://api.alpertunaozkan.com";
 
 export default function Logout() {
   // 👇 SSR hydration hatasını önlemek için: önce mount olsun, sonra render et
@@ -22,7 +22,7 @@ export default function Logout() {
         onClick: async () => {
           startTransition(async () => {
             try {
-              const res = await fetch(`${API_BASE}/auth/logout`, {
+              const res = await fetch(`${API_BASE}/api/auth/logout`, {
                 method: "POST",
                 credentials: "include",
               });

@@ -5,10 +5,10 @@ import { notFound } from "next/navigation";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://api.alpertunaozkan.com/api";
+  "https://api.alpertunaozkan.com";
 
 async function fetchArticle(slug: string, cookie: string) {
-  const res = await fetch(`${API_BASE}/makalelerim/${slug}`, {
+  const res = await fetch(`${API_BASE}/api/makalelerim/${slug}`, {
     cache: "no-store",
     next: { revalidate: 0 },
     credentials: "include",

@@ -1,8 +1,7 @@
 "use client";
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://api.alpertunaozkan.com/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.alpertunaozkan.com";
 
 type ErrorBagValue = { _errors?: Array<string | { message?: string }> };
 type ApiError = { message?: string; errors?: Record<string, ErrorBagValue> };
@@ -43,6 +42,14 @@ function formatErrorBag(bag: Record<string, ErrorBagValue | undefined>) {
   return parts.join(" • ");
 }
 
+function buildApiUrl(path: string): string {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  if (normalizedPath === "/api" || normalizedPath.startsWith("/api/")) {
+    return `${API_BASE}${normalizedPath}`;
+  }
+  return `${API_BASE}/api${normalizedPath}`;
+}
+
 type ApiInit = RequestInit & { parseJson?: boolean };
 
 export async function apiFetch<T = unknown>(
@@ -50,7 +57,7 @@ export async function apiFetch<T = unknown>(
   init?: ApiInit
 ): Promise<T> {
   const isAbs = /^https?:\/\//i.test(url);
-  const target = isAbs ? url : `${API_BASE}${url}`;
+  const target = isAbs ? url : buildApiUrl(url);
 
   const isFD =
     typeof FormData !== "undefined" && init?.body instanceof FormData;

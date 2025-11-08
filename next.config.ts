@@ -1,14 +1,14 @@
 // next.config.ts
 /** @type {import('next').NextConfig} */
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.alpertunaozkan.com/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.alpertunaozkan.com";
 
 const nextConfig = {
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: `${API_BASE}/:path*`,
+        destination: `${API_BASE}/api/:path*`,
       },
     ];
   },
