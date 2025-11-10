@@ -93,7 +93,11 @@ export default function NewArticleInline() {
   return (
     <>
       <ArticleHeroNew
-        image={{ url: imageData?.url, tinyUrl: imageData?.tinyUrl, alt: imageAlt }}
+        image={{
+          url: imageData?.url,
+          tinyUrl: imageData?.tinyUrl,
+          alt: imageAlt,
+        }}
         title={title}
         onChangeTitleLocal={setTitle}
         onChangeAltLocal={setImageAlt}
@@ -121,7 +125,7 @@ export default function NewArticleInline() {
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               rows={3}
-              placeholder="140–200 karakter"
+              placeholder="120 - 155 karakter"
               className="w-full rounded-md border px-3 py-2"
             />
             <div className="text-xs text-muted-foreground">
@@ -179,7 +183,11 @@ export default function NewArticleInline() {
           </div>
 
           <div className="mt-8 flex justify-end">
-            <Button onClick={handleCreate} disabled={!isDirty} className="h-10 px-6">
+            <Button
+              onClick={handleCreate}
+              disabled={!isDirty}
+              className="h-10 px-6"
+            >
               Kaydet
             </Button>
           </div>
